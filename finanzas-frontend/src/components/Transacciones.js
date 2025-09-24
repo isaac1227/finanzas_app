@@ -1,0 +1,357 @@
+import React, { useState, useEffect } from "react";
+
+const Transacciones = () => {
+  const [transacciones, setTransacciones] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [mesSeleccionado, setMesSeleccionado] = useState(new Date().getMonth() + 1);
+  const añoActual = new Date().getFullYear();
+
+  // Estados para añadir y editar
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [nuevaTransaccion, setNuevaTransaccion] = useState({
+    tipo: "gasto",
+    cantidad: 0,
+    descripcion: "",
+  });
+  const [editando, setEditando] = useState(null);
+
+  const nombresMeses = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+  ];
+
+  // Obtener transacciones filtradas por mes
+  useEffect(() => {
+    const fetchTransacciones = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`http://127.0.0.1:8000/transacciones?mes=${mesSeleccionado}&anio=${añoActual}`);
+        if (!res.ok) throw new Error("Error al obtener transacciones");
+        const data = await res.json();
+        setTransacciones(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTransacciones();
+  }, [mesSeleccionado, añoActual]);
+
+  // Crear nueva transacción
+  const guardarTransaccion = async () => {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/transacciones/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(nuevaTransaccion),
+      });
+      if (!res.ok) throw new Error("Error al guardar transacción");
+      
+      // Recargar transacciones del mes seleccionado
+      const resTransacciones = await fetch(`http://127.0.0.1:8000/transacciones?mes=${mesSeleccionado}&anio=${añoActual}`);
+      const data = await resTransacciones.json();
+      setTransacciones(data);
+      
+      setMostrarFormulario(false);
+      setNuevaTransaccion({ tipo: "gasto", cantidad: 0, descripcion: "" });
+    } catch (err) {
+      console.error("Error al guardar:", err);
+    }
+  };
+
+  // Eliminar transacción
+  const eliminarTransaccion = async (id) => {
+    try {
+      await fetch(`http://127.0.0.1:8000/transacciones/${id}`, {
+        method: "DELETE",
+      });
+      // Recargar transacciones del mes seleccionado
+      const res = await fetch(`http://127.0.0.1:8000/transacciones?mes=${mesSeleccionado}&anio=${añoActual}`);
+      const data = await res.json();
+      setTransacciones(data);
+    } catch (err) {
+      console.error("Error al eliminar:", err);
+    }
+  };
+
+  // Preparar edición
+  const editarTransaccion = (transaccion) => {
+    setEditando(transaccion.id);
+    setNuevaTransaccion({
+      tipo: transaccion.tipo,
+      cantidad: transaccion.cantidad,
+      descripcion: transaccion.descripcion || "",
+    });
+  };
+
+  // Actualizar transacción
+  const actualizarTransaccion = async () => {
+    try {
+      const res = await fetch(
+        `http://127.0.0.1:8000/transacciones/${editando}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(nuevaTransaccion),
+        }
+      );
+      if (!res.ok) throw new Error("Error al actualizar transacción");
+      
+      // Recargar transacciones del mes seleccionado
+      const resTransacciones = await fetch(`http://127.0.0.1:8000/transacciones?mes=${mesSeleccionado}&anio=${añoActual}`);
+      const data = await resTransacciones.json();
+      setTransacciones(data);
+      
+      setEditando(null);
+      setNuevaTransaccion({ tipo: "gasto", cantidad: 0, descripcion: "" });
+    } catch (err) {
+      console.error("Error al actualizar:", err);
+    }
+  };
+
+  if (loading) return <p>Cargando transacciones...</p>;
+  if (error) return <p>Error: {error}</p>;
+
+  return (
+    <div className="container mt-4">
+      {/* Header con filtro de mes */}
+      <div className="card mb-4">
+        <div className="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+          <h3 className="mb-0">💰 Transacciones de {nombresMeses[mesSeleccionado - 1]} {añoActual}</h3>
+          <select 
+            className="form-select w-auto"
+            value={mesSeleccionado}
+            onChange={(e) => setMesSeleccionado(parseInt(e.target.value))}
+          >
+            {nombresMeses.map((nombre, index) => (
+              <option key={index + 1} value={index + 1}>
+                {nombre}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="card-body">
+          <div className="row text-center">
+            <div className="col-md-4">
+              <div className="p-3 bg-success-subtle rounded">
+                <h6 className="text-muted mb-1">Ingresos</h6>
+                <h4 className="text-success mb-0">
+                  {transacciones.filter(t => t.tipo === 'ingreso').reduce((sum, t) => sum + t.cantidad, 0)} €
+                </h4>
+              </div>
+            </div>
+            <div className="col-md-4">
+              <div className="p-3 bg-danger-subtle rounded">
+                <h6 className="text-muted mb-1">Gastos</h6>
+                <h4 className="text-danger mb-0">
+                  {transacciones.filter(t => t.tipo === 'gasto').reduce((sum, t) => sum + t.cantidad, 0)} €
+                </h4>
+              </div>
+            </div>
+            <div className="col-md-4">
+              <div className="p-3 bg-primary-subtle rounded">
+                <h6 className="text-muted mb-1">Balance</h6>
+                <h4 className={
+                  (transacciones.filter(t => t.tipo === 'ingreso').reduce((sum, t) => sum + t.cantidad, 0) - 
+                   transacciones.filter(t => t.tipo === 'gasto').reduce((sum, t) => sum + t.cantidad, 0)) >= 0 
+                   ? 'text-success' : 'text-danger'
+                }>
+                  {transacciones.filter(t => t.tipo === 'ingreso').reduce((sum, t) => sum + t.cantidad, 0) - 
+                   transacciones.filter(t => t.tipo === 'gasto').reduce((sum, t) => sum + t.cantidad, 0)} €
+                </h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Lista de transacciones */}
+      <div className="card">
+        <div className="card-header d-flex justify-content-between align-items-center">
+          <h5 className="mb-0">Lista de Transacciones ({transacciones.length})</h5>
+          {!mostrarFormulario && (
+            <button 
+              className="btn btn-success"
+              onClick={() => setMostrarFormulario(true)}
+            >
+              ➕ Nueva Transacción
+            </button>
+          )}
+        </div>
+        <div className="card-body p-0">
+          {transacciones.length === 0 ? (
+            <div className="text-center p-5">
+              <div className="mb-3">
+                <i className="fas fa-receipt fa-3x text-muted"></i>
+              </div>
+              <h5 className="text-muted">No hay transacciones este mes</h5>
+              <p className="text-muted">¡Añade tu primera transacción para empezar!</p>
+              <button 
+                className="btn btn-primary"
+                onClick={() => setMostrarFormulario(true)}
+              >
+                ➕ Añadir Primera Transacción
+              </button>
+            </div>
+          ) : (
+            <div className="list-group list-group-flush">
+              {/* Formulario inline para nueva transacción */}
+              {mostrarFormulario && (
+                <div className="list-group-item bg-light">
+                  <div className="row align-items-center">
+                    <div className="col-md-2">
+                      <select
+                        className="form-select"
+                        value={nuevaTransaccion.tipo}
+                        onChange={(e) => setNuevaTransaccion({...nuevaTransaccion, tipo: e.target.value})}
+                      >
+                        <option value="gasto">🔴 Gasto</option>
+                        <option value="ingreso">🟢 Ingreso</option>
+                      </select>
+                    </div>
+                    <div className="col-md-4">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Descripción..."
+                        value={nuevaTransaccion.descripcion}
+                        onChange={(e) => setNuevaTransaccion({...nuevaTransaccion, descripcion: e.target.value})}
+                      />
+                    </div>
+                    <div className="col-md-3">
+                      <div className="input-group">
+                        <input
+                          type="number"
+                          className="form-control"
+                          placeholder="0.00"
+                          step="0.01"
+                          min="0"
+                          value={nuevaTransaccion.cantidad}
+                          onChange={(e) => setNuevaTransaccion({...nuevaTransaccion, cantidad: parseFloat(e.target.value) || 0})}
+                        />
+                        <span className="input-group-text">€</span>
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="d-flex gap-2">
+                        <button className="btn btn-success btn-sm" onClick={guardarTransaccion}>
+                          💾 Guardar
+                        </button>
+                        <button className="btn btn-secondary btn-sm" onClick={() => setMostrarFormulario(false)}>
+                          ❌ Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Transacciones existentes */}
+              {transacciones.map((t) => (
+                <div key={t.id} className="list-group-item">
+                  {editando === t.id ? (
+                    // Modo edición
+                    <div className="row align-items-center">
+                      <div className="col-md-2">
+                        <select
+                          className="form-select"
+                          value={nuevaTransaccion.tipo}
+                          onChange={(e) => setNuevaTransaccion({...nuevaTransaccion, tipo: e.target.value})}
+                        >
+                          <option value="gasto">🔴 Gasto</option>
+                          <option value="ingreso">🟢 Ingreso</option>
+                        </select>
+                      </div>
+                      <div className="col-md-4">
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={nuevaTransaccion.descripcion}
+                          onChange={(e) => setNuevaTransaccion({...nuevaTransaccion, descripcion: e.target.value})}
+                        />
+                      </div>
+                      <div className="col-md-3">
+                        <div className="input-group">
+                          <input
+                            type="number"
+                            className="form-control"
+                            step="0.01"
+                            min="0"
+                            value={nuevaTransaccion.cantidad}
+                            onChange={(e) => setNuevaTransaccion({...nuevaTransaccion, cantidad: parseFloat(e.target.value) || 0})}
+                          />
+                          <span className="input-group-text">€</span>
+                        </div>
+                      </div>
+                      <div className="col-md-3">
+                        <div className="d-flex gap-2">
+                          <button className="btn btn-success btn-sm" onClick={actualizarTransaccion}>
+                            💾 Guardar
+                          </button>
+                          <button className="btn btn-secondary btn-sm" onClick={() => setEditando(null)}>
+                            ❌ Cancelar
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    // Modo visualización
+                    <div className="row align-items-center">
+                      <div className="col-md-2">
+                        <span className={`badge ${t.tipo === 'ingreso' ? 'bg-success' : 'bg-danger'} fs-6`}>
+                          {t.tipo === 'ingreso' ? '🟢 Ingreso' : '🔴 Gasto'}
+                        </span>
+                      </div>
+                      <div className="col-md-4">
+                        <div>
+                          <strong>{t.descripcion || 'Sin descripción'}</strong>
+                          <div className="text-muted small">
+                            {new Date(t.fecha).toLocaleDateString('es-ES', {
+                              day: 'numeric',
+                              month: 'short',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-md-3">
+                        <h5 className={`mb-0 ${t.tipo === 'ingreso' ? 'text-success' : 'text-danger'}`}>
+                          {t.tipo === 'ingreso' ? '+' : '-'}{t.cantidad} €
+                        </h5>
+                      </div>
+                      <div className="col-md-3">
+                        <div className="d-flex gap-2">
+                          <button 
+                            className="btn btn-outline-primary btn-sm"
+                            onClick={() => editarTransaccion(t)}
+                          >
+                            ✏️ Editar
+                          </button>
+                          <button 
+                            className="btn btn-outline-danger btn-sm"
+                            onClick={() => {
+                              if (window.confirm('¿Seguro que deseas eliminar esta transacción?')) {
+                                eliminarTransaccion(t.id);
+                              }
+                            }}
+                          >
+                            🗑️ Eliminar
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Transacciones;
