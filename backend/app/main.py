@@ -65,20 +65,14 @@ def obtener_saldo_total(mes: int = None, anio: int = None, db: Session = Depends
         anio = fecha_actual.year
     
     # Obtener transacciones del mes específico
-    transacciones = crud.obtener_transacciones(db, mes=mes, anio=anio, skip=0, limit=10000)
+    ingresos, gastos = crud.obtener_transacciones_totales_mes(db, mes=mes, anio=anio, skip=0, limit=10000)
     
     # Calcular saldo de transacciones del mes
-    saldo_transacciones = 0
-    for t in transacciones:
-        if t.tipo == "ingreso":
-            saldo_transacciones += t.cantidad
-        elif t.tipo == "gasto":
-            saldo_transacciones -= t.cantidad
+    saldo_transacciones = ingresos - gastos
     
     # Obtener sueldo del mes específico
     sueldo_mes = crud.obtener_sueldo_mes(db, mes, anio)
     saldo_sueldo = sueldo_mes.cantidad if sueldo_mes else 0
-    
     saldo_total = saldo_transacciones + saldo_sueldo
     
     return {
@@ -88,3 +82,4 @@ def obtener_saldo_total(mes: int = None, anio: int = None, db: Session = Depends
         "mes": mes,
         "anio": anio
     }
+    

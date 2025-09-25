@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import extract
+from sqlalchemy import extract, func
 from . import models, schemas
 
 def crear_transaccion(db: Session, transaccion: schemas.TransaccionCreate):
@@ -16,6 +16,19 @@ def obtener_transacciones(db: Session, mes: int = None, anio: int = None, skip: 
     if anio:
         query = query.filter(extract('year', models.Transaccion.fecha) == anio)
     return query.offset(skip).limit(limit).all()
+
+def obtener_transacciones_totales_mes(db: Session, mes: int = None, anio: int = None, skip: int = 0, limit: int = 100):
+    query = db.query(models.Transaccion)
+
+    if mes:
+        query = query.filter(extract('month', models.Transaccion.fecha) == mes)
+    if anio:
+        query = query.filter(extract('year', models.Transaccion.fecha) == anio)
+
+    ingresos = query.filter(models.Transaccion.tipo == 'ingreso').with_entities(func.sum(models.Transaccion.cantidad)).scalar() or 0
+    gastos = query.filter(models.Transaccion.tipo == 'gasto').with_entities(func.sum(models.Transaccion.cantidad)).scalar() or 0
+
+    return ingresos, gastos
 
 def actualizar_transaccion(db: Session, transaccion_id: int, transaccion: schemas.TransaccionUpdate):
     db_trans = db.query(models.Transaccion).filter(models.Transaccion.id == transaccion_id).first()

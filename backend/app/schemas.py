@@ -1,10 +1,22 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from datetime import datetime
 
 class TransaccionBase(BaseModel):
     tipo: str
     cantidad: float
     descripcion: str | None = None
+
+    @validator("cantidad")
+    def cantidad_positiva(cls, v):
+        if v <= 0:
+            raise ValueError("La cantidad debe ser un número positivo")
+        return v
+
+    @validator("descripcion")
+    def descripcion_obligatoria_gasto(cls, v, values):
+        if values.get("tipo") == "gasto" and (v is None or v.strip() == ""):
+            raise ValueError("La descripción es obligatoria para gastos")
+        return v
 
 class TransaccionCreate(TransaccionBase):
     pass
