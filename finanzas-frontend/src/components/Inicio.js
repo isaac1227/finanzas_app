@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
+import Graficos from "./Graficos";
 
-const Dashboard = ({ saldo }) => {
+const Inicio = ({ mesGlobal, setMesGlobal, añoGlobal }) => {
   const [sueldoActual, setSueldoActual] = useState(null);
   const [nuevoSueldo, setNuevoSueldo] = useState("");
   const [editando, setEditando] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saldoTotal, setSaldoTotal] = useState(null);
-  const fechaActual = new Date();
-  const [mesSeleccionado, setMesSeleccionado] = useState(fechaActual.getMonth() + 1);
-  const añoActual = fechaActual.getFullYear();
 
   const nombresMeses = [
     "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
@@ -19,7 +17,7 @@ const Dashboard = ({ saldo }) => {
   useEffect(() => {
     const cargarSaldoTotal = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/saldo-total?mes=${mesSeleccionado}&anio=${añoActual}`);
+        const response = await fetch(`http://127.0.0.1:8000/saldo-total?mes=${mesGlobal}&anio=${añoGlobal}`);
         if (response.ok) {
           const data = await response.json();
           setSaldoTotal(data);
@@ -33,14 +31,14 @@ const Dashboard = ({ saldo }) => {
     };
 
     cargarSaldoTotal();
-  }, [mesSeleccionado, añoActual]);
+  }, [mesGlobal, añoGlobal]);
 
   // Cargar sueldo del mes seleccionado
   useEffect(() => {
     const cargarSueldoActual = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`http://127.0.0.1:8000/sueldos/${añoActual}/${mesSeleccionado}`);
+        const response = await fetch(`http://127.0.0.1:8000/sueldos/${añoGlobal}/${mesGlobal}`);
         if (response.ok) {
           const sueldo = await response.json();
           setSueldoActual(sueldo);
@@ -59,7 +57,7 @@ const Dashboard = ({ saldo }) => {
     };
 
     cargarSueldoActual();
-  }, [mesSeleccionado, añoActual]);
+  }, [mesGlobal, añoGlobal]);
 
   // Guardar o actualizar sueldo
   const guardarSueldo = async () => {
@@ -74,8 +72,8 @@ const Dashboard = ({ saldo }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           cantidad: parseFloat(nuevoSueldo),
-          mes: mesSeleccionado,
-          anio: añoActual
+          mes: mesGlobal,
+          anio: añoGlobal
         }),
       });
 
@@ -85,7 +83,7 @@ const Dashboard = ({ saldo }) => {
         setEditando(false);
         
         // Recargar saldo total
-        const resSaldo = await fetch(`http://127.0.0.1:8000/saldo-total?mes=${mesSeleccionado}&anio=${añoActual}`);
+        const resSaldo = await fetch(`http://127.0.0.1:8000/saldo-total?mes=${mesGlobal}&anio=${añoGlobal}`);
         if (resSaldo.ok) {
           const dataSaldo = await resSaldo.json();
           setSaldoTotal(dataSaldo);
@@ -112,7 +110,7 @@ const Dashboard = ({ saldo }) => {
   if (loading) {
     return (
       <div className="container">
-        <h1>Dashboard</h1>
+        <h1>Inicio</h1>
         <p>Cargando...</p>
       </div>
     );
@@ -122,16 +120,16 @@ const Dashboard = ({ saldo }) => {
     <div className="container mt-4">
       <h1>Dashboard</h1>
       
-            {/* Saldo total */}
+      {/* Saldo total - YA TIENES ESTO */}
       <div className="row mb-4">
         <div className="col-md-12">
-          <div className="card bg-primary-subtle">
-            <div className="card-header d-flex justify-content-between align-items-center bg-primary text-white">
-              <h4>Saldo de {nombresMeses[mesSeleccionado - 1]} {añoActual}</h4>
+          <div className="card">
+            <div className="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+              <h4>Saldo de {nombresMeses[mesGlobal - 1]} {añoGlobal}</h4>
               <select 
-                className="form-select w-auto"
-                value={mesSeleccionado}
-                onChange={(e) => setMesSeleccionado(parseInt(e.target.value))}
+                className="form-select w-auto text-dark"
+                value={mesGlobal}
+                onChange={(e) => setMesGlobal(parseInt(e.target.value))}
               >
                 {nombresMeses.map((nombre, index) => (
                   <option key={index + 1} value={index + 1}>
@@ -164,12 +162,12 @@ const Dashboard = ({ saldo }) => {
         </div>
       </div>
 
-      {/* Gestión de sueldo */}
+      {/* Gestión de sueldo - YA TIENES ESTO */}
       <div className="row mb-4">
         <div className="col-md-8">
           <div className="card">
             <div className="card-header">
-              <h5>Gestión de Sueldos - {nombresMeses[mesSeleccionado - 1]} {añoActual}</h5>
+              <h5>Gestión de Sueldos - {nombresMeses[mesGlobal - 1]} {añoGlobal}</h5>
             </div>
             <div className="card-body">
               {!editando ? (
@@ -177,7 +175,7 @@ const Dashboard = ({ saldo }) => {
                   {sueldoActual ? (
                     <div className="d-flex justify-content-between align-items-center">
                       <div>
-                        <h6 className="text-muted">Sueldo de {nombresMeses[mesSeleccionado - 1]}</h6>
+                        <h6 className="text-muted">Sueldo de {nombresMeses[mesGlobal - 1]}</h6>
                         <h4 className="text-success">{sueldoActual.cantidad} €</h4>
                         <small className="text-muted">
                           Registrado el {new Date(sueldoActual.fecha).toLocaleDateString()}
@@ -192,7 +190,7 @@ const Dashboard = ({ saldo }) => {
                     </div>
                   ) : (
                     <div className="text-center">
-                      <h6 className="text-muted">Sueldo de {nombresMeses[mesSeleccionado - 1]}</h6>
+                      <h6 className="text-muted">Sueldo de {nombresMeses[mesGlobal - 1]}</h6>
                       <p className="text-muted">No hay sueldo registrado para este mes</p>
                       <button 
                         className="btn btn-primary"
@@ -207,7 +205,7 @@ const Dashboard = ({ saldo }) => {
                 <div>
                   <div className="mb-3">
                     <label htmlFor="sueldo" className="form-label">
-                      Cantidad del sueldo - {nombresMeses[mesSeleccionado - 1]} {añoActual}
+                      Cantidad del sueldo - {nombresMeses[mesGlobal - 1]} {añoGlobal}
                     </label>
                     <div className="input-group">
                       <input
@@ -244,9 +242,19 @@ const Dashboard = ({ saldo }) => {
         </div>
       </div>
 
-      {/* Aquí podrías poner gráficos más adelante */}
+      {/* NUEVA SECCIÓN: Gráficos integrados */}
+      <div className="row mb-4">
+        <div className="col-12">
+          <Graficos 
+            mesGlobal={mesGlobal}
+            setMesGlobal={setMesGlobal}
+            añoGlobal={añoGlobal}
+            hideSelector={true} // ← Nueva prop para ocultar el selector
+          />
+        </div>
+      </div>
     </div>
   );
 };
 
-export default Dashboard;
+export default Inicio;

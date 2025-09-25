@@ -1,187 +1,321 @@
-# 💰 Finanzas App - Gestor Personal de Finanzas
+# 💰 Finanzas App - Gestión Personal de Finanzas
 
-**Proyecto personal de práctica** para el aprendizaje y dominio de tecnologías modernas de desarrollo web full-stack.
+Un proyecto personal desarrollado para **practicar y demostrar competencias** en desarrollo full-stack moderno con **FastAPI**, **React** y **PostgreSQL**.
 
-## 📖 Descripción del Proyecto
+## 🎯 Objetivo del Proyecto
 
-**Finanzas App** es una aplicación web completa para la gestión personal de finanzas que permite a los usuarios controlar sus ingresos, gastos y sueldos de manera organizada por meses. El proyecto fue desarrollado como una práctica integral de tecnologías modernas de desarrollo web, implementando un stack completo con frontend en React y backend en FastAPI.
-
-### 🎯 Propósito
-
-Este proyecto sirve como:
-- **Práctica de desarrollo full-stack** con tecnologías modernas
-- **Aprendizaje de arquitectura API REST** con FastAPI
-- **Experiencia con React** y gestión de estado
-- **Implementación de base de datos** con SQLAlchemy
-- **Diseño de interfaces** con Bootstrap
-- **Gestión de proyectos** con Git
-
-## ✨ Funcionalidades Principales
-
-### 💵 Gestión de Sueldos
-- ✅ **Un sueldo por mes** - Registro único mensual con validación de BD
-- ✅ **Crear/Actualizar** - Sistema inteligente que crea o actualiza automáticamente
-- ✅ **Selector de mes** - Gestión de sueldos para cualquier mes del año
-- ✅ **Validaciones** - Control de datos con Pydantic schemas
-
-### 📊 Gestión de Transacciones
-- ✅ **Ingresos y gastos** - Clasificación automática con colores
-- ✅ **Filtrado por mes** - Vista organizada por periodos mensuales
-- ✅ **CRUD completo** - Crear, leer, actualizar y eliminar transacciones
-- ✅ **Confirmaciones** - Seguridad ante eliminaciones accidentales
-
-### 📈 Dashboard Inteligente
-- ✅ **Saldo mensual** - Cálculo automático por mes (no acumulativo)
-- ✅ **Desglose detallado** - Sueldos + Balance de transacciones
-- ✅ **Indicadores visuales** - Colores intuitivos (verde/rojo)
-- ✅ **Resúmenes automáticos** - Totales de ingresos, gastos y balance
-
-### 🎨 Interfaz Moderna
-- ✅ **Diseño responsive** - Bootstrap 5 con sistema de grid
-- ✅ **Componentes modernos** - Cards, badges, y estados visuales
-- ✅ **Experiencia intuitiva** - Emojis, colores y confirmaciones
-- ✅ **Estados de carga** - Feedback visual para el usuario
+Este proyecto fue creado como **ejercicio de aprendizaje** para practicar:
+- Desarrollo de APIs REST con FastAPI
+- Frontend moderno con React y Bootstrap
+- Gestión de bases de datos con PostgreSQL y SQLAlchemy
+- Arquitectura full-stack completa
+- Documentación profesional de proyectos
 
 ## 🛠️ Stack Tecnológico
 
-### Backend (API REST)
-- **🐍 Python 3.12** - Lenguaje principal
-- **⚡ FastAPI** - Framework web moderno y rápido
-- **🗄️ SQLAlchemy** - ORM para gestión de base de datos
-- **✅ Pydantic** - Validación y serialización de datos
-- **🐘 PostgreSQL** - Base de datos relacional (configurable)
-- **🔄 Uvicorn** - Servidor ASGI de alto rendimiento
+### **Backend**
+- **FastAPI** - Framework web moderno y rápido para Python
+- **SQLAlchemy** - ORM para manejo de base de datos
+- **Pydantic** - Validación de datos y serialización
+- **PostgreSQL** - Base de datos relacional
+- **Python 3.11+** - Lenguaje de programación
 
-### Frontend (SPA)
-- **⚛️ React 18** - Biblioteca de interfaces de usuario
-- **🎨 Bootstrap 5** - Framework CSS para diseño responsive
-- **📡 Fetch API** - Comunicación con el backend
-- **🪝 React Hooks** - useState, useEffect para gestión de estado
-- **📱 Responsive Design** - Adaptable a móviles y desktop
+### **Frontend**
+- **React 18** - Biblioteca para interfaces de usuario
+- **Bootstrap 5** - Framework CSS para diseño responsivo
+- **JavaScript ES6+** - Lenguaje de programación frontend
 
-### Base de Datos
-- **📊 Modelo relacional** con constraints y validaciones
-- **🔗 Relaciones** optimizadas con índices
-- **🛡️ Constraints únicos** para reglas de negocio
-- **📅 Campos de auditoría** con timestamps automáticos
+### **Desarrollo**
+- **Git** - Control de versiones
+- **uvicorn** - Servidor ASGI para desarrollo
+- **npm** - Gestión de dependencias frontend
+
+## ✨ Funcionalidades
+
+### **🏠 Análisis Financiero (Inicio)**
+- Visualización del saldo mensual (no acumulativo)
+- Desglose por: Saldo Total, Sueldos, Transacciones
+- Selector de mes maestro que sincroniza toda la aplicación
+- Gestión de sueldos (un sueldo por mes)
+- **Gráficos integrados** con Chart.js mostrando análisis visual
+
+### **📊 Análisis Visual con Gráficos**
+- **Gráfico de barras profesional** (Gastos vs Ingresos)
+- **Panel de métricas** con 4 indicadores clave:
+  - 💸 Total de Gastos del mes
+  - 💰 Total de Ingresos del mes  
+  - 📈 Balance mensual (positivo/negativo)
+  - 📊 Tasa de Ahorro porcentual
+- **Animaciones suaves** y tooltips informativos
+- **Estados responsivos** (carga, vacío, error)
+
+### **💸 Gestión de Transacciones**
+- Crear, editar y eliminar transacciones (ingresos/gastos)
+- Filtrado por mes y año
+- Interfaz moderna con cards (no tablas tradicionales)
+- Confirmación antes de eliminar
+- Resumen automático del mes (ingresos vs gastos)
+
+### **💰 Gestión de Sueldos**
+- Un sueldo por mes (restricción de negocio)
+- Crear o actualizar sueldo mensual
+- Visualización histórica por meses
 
 ## 🏗️ Arquitectura del Proyecto
 
 ```
 finanzas-app/
-├── backend/                 # API REST en FastAPI
+├── backend/
 │   ├── app/
 │   │   ├── __init__.py
-│   │   ├── main.py         # Endpoints y aplicación principal
-│   │   ├── models.py       # Modelos SQLAlchemy
-│   │   ├── schemas.py      # Schemas Pydantic
-│   │   ├── crud.py         # Operaciones de base de datos
-│   │   └── database.py     # Configuración de BD
-│   └── requirements.txt    # Dependencias Python
-├── finanzas-frontend/      # Aplicación React
+│   │   ├── main.py          # Endpoints de la API
+│   │   ├── models.py        # Modelos de SQLAlchemy
+│   │   ├── schemas.py       # Esquemas de Pydantic
+│   │   ├── crud.py          # Operaciones de base de datos
+│   │   └── database.py      # Configuración de BD
+│   └── requirements.txt
+├── finanzas-frontend/
 │   ├── src/
-│   │   ├── components/     # Componentes React
-│   │   │   ├── Dashboard.js
-│   │   │   └── Transacciones.js
-│   │   └── App.js         # Aplicación principal
-│   └── package.json       # Dependencias Node.js
-└── README.md              # Documentación del proyecto
+│   │   ├── components/
+│   │   │   ├── Inicio.js         # Análisis Financiero principal con gráficos
+│   │   │   ├── Transacciones.js  # Gestión de transacciones
+│   │   │   ├── Graficos.js       # Componente de visualización
+│   │   │   └── Navbar.js         # Navegación
+│   │   ├── App.js           # Estado compartido y rutas
+│   │   └── index.js
+│   └── package.json
+├── README.md
+├── SETUP.md
+└── PORTFOLIO.md
 ```
 
-## 🚀 Configuración y Ejecución
+## 🚀 Instalación y Configuración
 
-### Prerrequisitos
-- Python 3.12+
-- Node.js 18+
-- PostgreSQL (opcional, SQLite por defecto)
-
-### 🔧 Backend Setup
+### **Prerrequisitos**
 ```bash
-cd backend/
+# Verificar versiones
+python3 --version  # >= 3.11
+node --version     # >= 16
+npm --version      # >= 8
+psql --version     # PostgreSQL 12+
+```
+
+### **1. Clonar el repositorio**
+```bash
+git clone https://github.com/isaac1227/finanzas_app.git
+cd finanzas_app
+```
+
+### **2. Configurar PostgreSQL**
+```bash
+# Acceder a PostgreSQL
+sudo -u postgres psql
+
+# Crear base de datos y usuario
+CREATE DATABASE finanzas_db;
+CREATE USER finanzas_user WITH PASSWORD 'tu_password_seguro';
+GRANT ALL PRIVILEGES ON DATABASE finanzas_db TO finanzas_user;
+\q
+```
+
+### **3. Configurar Backend**
+```bash
+cd backend
+
+# Crear entorno virtual
+python3 -m venv venv
+source venv/bin/activate
+
+# Instalar dependencias
 pip install -r requirements.txt
+
+# Configurar variables de entorno
+echo 'DATABASE_URL="postgresql://finanzas_user:tu_password_seguro@localhost/finanzas_db"' > .env
+
+# Iniciar servidor
 uvicorn app.main:app --reload --port 8000
 ```
 
-### ⚛️ Frontend Setup
+### **4. Configurar Frontend**
 ```bash
-cd finanzas-frontend/
+cd ../finanzas-frontend
+
+# Instalar dependencias
 npm install
+
+# Iniciar aplicación
 npm start
 ```
 
-### 🌐 Acceso
+## 🐘 Comandos PostgreSQL Útiles
+
+### **Acceso a la Base de Datos**
+```bash
+# Conectar a PostgreSQL como usuario finanzas_user
+psql -h localhost -U finanzas_user -d finanzas_db
+
+# Conectar como superusuario postgres
+sudo -u postgres psql finanzas_db
+```
+
+### **Comandos de Consulta y Visualización**
+```sql
+-- Ver todas las tablas
+\dt
+
+-- Describir estructura de tabla
+\d transacciones
+\d sueldos
+
+-- Ver todas las transacciones
+SELECT * FROM transacciones ORDER BY fecha DESC;
+
+-- Ver transacciones de un mes específico
+SELECT * FROM transacciones 
+WHERE EXTRACT(month FROM fecha) = 9 
+AND EXTRACT(year FROM fecha) = 2025;
+
+-- Ver todos los sueldos
+SELECT * FROM sueldos ORDER BY anio DESC, mes DESC;
+
+-- Resumen de transacciones por tipo
+SELECT 
+    tipo,
+    COUNT(*) as cantidad,
+    SUM(cantidad) as total,
+    AVG(cantidad) as promedio
+FROM transacciones 
+GROUP BY tipo;
+
+-- Saldo mensual completo (como lo hace la API)
+SELECT 
+    s.cantidad as sueldo,
+    COALESCE(SUM(CASE WHEN t.tipo = 'ingreso' THEN t.cantidad ELSE 0 END), 0) as ingresos,
+    COALESCE(SUM(CASE WHEN t.tipo = 'gasto' THEN t.cantidad ELSE 0 END), 0) as gastos,
+    s.cantidad + 
+    COALESCE(SUM(CASE WHEN t.tipo = 'ingreso' THEN t.cantidad ELSE 0 END), 0) - 
+    COALESCE(SUM(CASE WHEN t.tipo = 'gasto' THEN t.cantidad ELSE 0 END), 0) as saldo_total
+FROM sueldos s
+LEFT JOIN transacciones t ON EXTRACT(month FROM t.fecha) = s.mes 
+                          AND EXTRACT(year FROM t.fecha) = s.anio
+WHERE s.mes = 9 AND s.anio = 2025
+GROUP BY s.mes, s.anio, s.cantidad;
+
+-- Ver últimas 10 transacciones with formato legible
+SELECT 
+    id,
+    tipo,
+    cantidad,
+    TO_CHAR(fecha, 'DD/MM/YYYY HH24:MI') as fecha_formato,
+    COALESCE(descripcion, 'Sin descripción') as descripcion
+FROM transacciones 
+ORDER BY fecha DESC 
+LIMIT 10;
+
+-- Salir de PostgreSQL
+\q
+```
+
+### **Comandos de Mantenimiento**
+```sql
+-- Limpiar todas las transacciones (¡CUIDADO!)
+DELETE FROM transacciones;
+
+-- Limpiar todos los sueldos (¡CUIDADO!)
+DELETE FROM sueldos;
+
+-- Insertar datos de prueba
+INSERT INTO transacciones (tipo, cantidad, descripcion, fecha) VALUES 
+('ingreso', 100.50, 'Freelance proyecto', '2025-09-15 10:30:00'),
+('gasto', 25.75, 'Café y comida', '2025-09-15 14:15:00'),
+('gasto', 150.00, 'Supermercado', '2025-09-16 18:00:00');
+
+INSERT INTO sueldos (cantidad, mes, anio) VALUES 
+(2500.00, 9, 2025);
+
+-- Ver información del sistema
+SELECT version();
+SELECT current_database();
+SELECT current_user;
+```
+
+## 🔌 API Endpoints
+
+### **Transacciones**
+- `GET /transacciones` - Listar todas las transacciones  
+- `GET /transacciones?mes=9&anio=2025` - Filtrar por mes
+- `POST /transacciones` - Crear nueva transacción
+- `PUT /transacciones/{id}` - Actualizar transacción
+- `DELETE /transacciones/{id}` - Eliminar transacción
+
+### **Sueldos**
+- `GET /sueldos` - Listar todos los sueldos
+- `GET /sueldos/{anio}/{mes}` - Obtener sueldo específico
+- `POST /sueldos` - Crear o actualizar sueldo
+
+### **Inicio**
+- `GET /saldo-total?mes=9&anio=2025` - Saldo completo del mes
+
+## 🎓 Conocimientos Aplicados
+
+### **Backend Development**
+- ✅ **REST API Design** - Endpoints RESTful con FastAPI
+- ✅ **Database Design** - Esquema relacional con restricciones
+- ✅ **ORM Usage** - SQLAlchemy con modelos y relaciones
+- ✅ **Data Validation** - Pydantic schemas con validaciones
+- ✅ **CRUD Operations** - Separación de lógica de negocio
+- ✅ **Query Optimization** - Filtros eficientes con SQLAlchemy
+
+### **Frontend Development**
+- ✅ **React Hooks** - useState, useEffect para estado
+- ✅ **API Integration** - Fetch con manejo de errores
+- ✅ **Responsive Design** - Bootstrap 5 con grid system
+- ✅ **Component Architecture** - Componentes reutilizables
+- ✅ **State Management** - Estado local con React hooks
+- ✅ **User Experience** - Confirmaciones, loading states
+
+### **Database Management**
+- ✅ **PostgreSQL** - Base de datos relacional avanzada
+- ✅ **Schema Design** - Tablas con restricciones de integridad
+- ✅ **Data Modeling** - Relaciones y constraints únicos
+- ✅ **Query Writing** - SQL para reportes y agregaciones
+
+## 📈 Métricas del Proyecto
+
+- **📁 Archivos de código**: ~15 archivos principales
+- **📝 Líneas de código**: ~1,500 líneas (Python + JavaScript)
+- **🔌 Endpoints API**: 8 endpoints RESTful
+- **🎨 Componentes React**: 2 componentes principales
+- **🗄️ Tablas de BD**: 2 tablas con relaciones
+- **⚡ Funcionalidades**: 6 funcionalidades principales
+
+## 🌐 Acceso
+
 - **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:8000
-- **Documentación API**: http://localhost:8000/docs
+- **Documentación API**: http://localhost:8000/docs (Swagger UI automático)
+- **Base de datos**: localhost:5432/finanzas_db
 
-## 📊 Modelo de Datos
+## 📚 Próximas Mejoras (Roadmap de Aprendizaje)
 
-### Tabla `transacciones`
-- `id` - Identificador único
-- `tipo` - "ingreso" | "gasto"
-- `cantidad` - Monto de la transacción
-- `descripcion` - Descripción opcional
-- `fecha` - Timestamp automático
+- [ ] **Autenticación**: JWT tokens con FastAPI Security
+- [ ] **Testing**: Tests unitarios con pytest y React Testing Library  
+- [ ] **Docker**: Containerización completa del stack
+- [ ] **CI/CD**: GitHub Actions para deployment automático
+- [ ] **Charts**: Gráficos con Chart.js o D3.js
+- [ ] **Mobile**: Progressive Web App (PWA)
 
-### Tabla `sueldos`
-- `id` - Identificador único
-- `cantidad` - Monto del sueldo
-- `mes` - Mes (1-12)
-- `anio` - Año
-- `fecha` - Timestamp automático
-- **Constraint único**: (mes, anio)
+## 🤝 Propósito Educativo
 
-## 🎓 Aprendizajes Técnicos
-
-### Backend Development
-- ✅ **API REST** - Diseño y implementación de endpoints RESTful
-- ✅ **Validación de datos** - Schemas con Pydantic para seguridad
-- ✅ **ORM avanzado** - Consultas complejas con SQLAlchemy
-- ✅ **Arquitectura en capas** - Separación Models/Schemas/CRUD/Endpoints
-- ✅ **Manejo de errores** - HTTPExceptions y validaciones
-
-### Frontend Development
-- ✅ **React Hooks** - useState, useEffect para gestión de estado
-- ✅ **Comunicación API** - Fetch con async/await
-- ✅ **Componentización** - Componentes reutilizables y props
-- ✅ **Manejo de formularios** - Estados controlados y validaciones
-- ✅ **UX/UI Design** - Bootstrap, estados de carga, confirmaciones
-
-### DevOps y Herramientas
-- ✅ **Control de versiones** - Git para gestión del código
-- ✅ **Gestión de dependencias** - pip y npm
-- ✅ **Documentación** - README completo y comentarios en código
-- ✅ **Debugging** - Herramientas de desarrollo y logs
-
-## 🔮 Características Destacadas
-
-### 🧠 Lógica de Negocio Inteligente
-- **Sueldo único por mes** - Previene duplicados con constraints de BD
-- **Cálculo mensual** - Saldos no acumulativos, por periodo específico
-- **Filtrado dinámico** - Backend optimizado con parámetros de consulta
-
-### 🎨 Experiencia de Usuario
-- **Interfaz moderna** - Cards en lugar de tablas tradicionales
-- **Feedback visual** - Estados de carga, confirmaciones, colores intuitivos
-- **Responsive design** - Funciona perfectamente en móvil y desktop
-
-### 🏗️ Arquitectura Escalable
-- **Separación de responsabilidades** - Frontend/Backend independientes
-- **API documentada** - Swagger automático con FastAPI
-- **Código mantenible** - Estructura clara y comentarios explicativos
-
-## 👨‍💻 Autor
-
-**Isaac Marroquí** - Desarrollador en formación
-
-Este proyecto representa mi práctica y aprendizaje en desarrollo full-stack, implementando buenas prácticas y tecnologías modernas para crear una aplicación funcional y bien estructurada.
+Este proyecto demuestra competencias en:
+- **Desarrollo Full-Stack** completo con análisis financiero y visualización
+- **Arquitectura de software** bien estructurada con estado compartido
+- **Integración de librerías** externas (Chart.js) en React
+- **Mejores prácticas** de desarrollo web y UX/UI
+- **Documentación profesional** de proyectos
+- **Resolución de problemas** técnicos reales
 
 ---
-### 📝 Notas del Desarrollo
 
-- **Duración estimada**: 2-3 semanas de desarrollo activo
-- **Propósito**: Proyecto personal de práctica y aprendizaje
-- **Estado**: ✅ Funcional - En mejora continua
-- **Licencia**: Uso personal y educativo
-
-*Desarrollado con ❤️ para aprender y crecer como desarrollador full-stack*
+**📧 Contacto**: [isaac1227@github.com](mailto:isaac1227@github.com)  
+**🔗 Portfolio**: [Más proyectos en mi GitHub](https://github.com/isaac1227)

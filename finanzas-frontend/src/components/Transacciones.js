@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 
-const Transacciones = () => {
+const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
   const [transacciones, setTransacciones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [mesSeleccionado, setMesSeleccionado] = useState(new Date().getMonth() + 1);
-  const añoActual = new Date().getFullYear();
 
   // Estados para añadir y editar
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
@@ -26,7 +24,7 @@ const Transacciones = () => {
     const fetchTransacciones = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`http://127.0.0.1:8000/transacciones?mes=${mesSeleccionado}&anio=${añoActual}`);
+        const res = await fetch(`http://127.0.0.1:8000/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
         if (!res.ok) throw new Error("Error al obtener transacciones");
         const data = await res.json();
         setTransacciones(data);
@@ -37,7 +35,7 @@ const Transacciones = () => {
       }
     };
     fetchTransacciones();
-  }, [mesSeleccionado, añoActual]);
+  }, [mesGlobal, añoGlobal]);
 
   // Crear nueva transacción
   const guardarTransaccion = async () => {
@@ -50,7 +48,7 @@ const Transacciones = () => {
       if (!res.ok) throw new Error("Error al guardar transacción");
       
       // Recargar transacciones del mes seleccionado
-      const resTransacciones = await fetch(`http://127.0.0.1:8000/transacciones?mes=${mesSeleccionado}&anio=${añoActual}`);
+      const resTransacciones = await fetch(`http://127.0.0.1:8000/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
       const data = await resTransacciones.json();
       setTransacciones(data);
       
@@ -68,7 +66,7 @@ const Transacciones = () => {
         method: "DELETE",
       });
       // Recargar transacciones del mes seleccionado
-      const res = await fetch(`http://127.0.0.1:8000/transacciones?mes=${mesSeleccionado}&anio=${añoActual}`);
+      const res = await fetch(`http://127.0.0.1:8000/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
       const data = await res.json();
       setTransacciones(data);
     } catch (err) {
@@ -100,7 +98,7 @@ const Transacciones = () => {
       if (!res.ok) throw new Error("Error al actualizar transacción");
       
       // Recargar transacciones del mes seleccionado
-      const resTransacciones = await fetch(`http://127.0.0.1:8000/transacciones?mes=${mesSeleccionado}&anio=${añoActual}`);
+      const resTransacciones = await fetch(`http://127.0.0.1:8000/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
       const data = await resTransacciones.json();
       setTransacciones(data);
       
@@ -119,11 +117,11 @@ const Transacciones = () => {
       {/* Header con filtro de mes */}
       <div className="card mb-4">
         <div className="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-          <h3 className="mb-0">💰 Transacciones de {nombresMeses[mesSeleccionado - 1]} {añoActual}</h3>
+          <h3 className="mb-0">💰 Transacciones de {nombresMeses[mesGlobal - 1]} {añoGlobal}</h3>
           <select 
             className="form-select w-auto"
-            value={mesSeleccionado}
-            onChange={(e) => setMesSeleccionado(parseInt(e.target.value))}
+            value={mesGlobal}
+            onChange={(e) => setMesGlobal(parseInt(e.target.value))}
           >
             {nombresMeses.map((nombre, index) => (
               <option key={index + 1} value={index + 1}>
