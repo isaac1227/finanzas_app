@@ -20,9 +20,10 @@ app.add_middleware(
 def root():
     return {"message": "Bienvenido a tu app de finanzas"}
 
+# Endpoints para Transacciones
 @app.post("/transacciones", response_model=schemas.Transaccion)
 def crear_transaccion(transaccion: schemas.TransaccionCreate, db: Session = Depends(database.get_db)):
-    return crud.crear_transaccion(db, transaccion)
+    return crud.crear_transaccion(db, transaccion, fecha_custom=transaccion.fecha)
 
 @app.get("/transacciones", response_model=list[schemas.Transaccion])
 def leer_transacciones(mes: int = None, anio: int = None, skip: int = 0, limit: int = 100, db: Session = Depends(database.get_db)):

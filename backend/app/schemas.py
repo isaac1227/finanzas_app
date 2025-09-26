@@ -5,6 +5,7 @@ class TransaccionBase(BaseModel):
     tipo: str
     cantidad: float
     descripcion: str | None = None
+    fecha: datetime = None  # ← Fecha opcional
 
     @validator("cantidad")
     def cantidad_positiva(cls, v):
@@ -32,6 +33,7 @@ class TransaccionUpdate(BaseModel):
     tipo: str | None = None
     cantidad: float | None = None
     descripcion: str | None = None
+    fecha: datetime | None = None 
 
 class TransaccionDelete(BaseModel):
     id: int

@@ -1,9 +1,17 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import extract, func
 from . import models, schemas
+import datetime
 
-def crear_transaccion(db: Session, transaccion: schemas.TransaccionCreate):
-    db_trans = models.Transaccion(**transaccion.dict())
+def crear_transaccion(db: Session, transaccion: schemas.TransaccionCreate, fecha_custom: datetime.datetime = None):
+    transaccion_dict = transaccion.dict()
+    
+    if transaccion.fecha:
+        transaccion_dict['fecha'] = transaccion.fecha
+    elif fecha_custom:
+        transaccion_dict['fecha'] = fecha_custom
+    
+    db_trans = models.Transaccion(**transaccion_dict)
     db.add(db_trans)
     db.commit()
     db.refresh(db_trans)
@@ -32,10 +40,25 @@ def obtener_transacciones_totales_mes(db: Session, mes: int = None, anio: int = 
 
 def actualizar_transaccion(db: Session, transaccion_id: int, transaccion: schemas.TransaccionUpdate):
     db_trans = db.query(models.Transaccion).filter(models.Transaccion.id == transaccion_id).first()
+    
     if not db_trans:
         return None
-    for key, value in transaccion.dict().items():
-        setattr(db_trans, key, value)
+
+    for key, value in transaccion.dict(exclude_unset=True).items():
+        if value is not None and key != "fecha":
+            setattr(db_trans, key, value)
+
+    transaccion_dict = transaccion.dict(exclude_unset=True)
+    if "fecha" in transaccion_dict and transaccion_dict["fecha"] is not None:
+        if isinstance(transaccion_dict["fecha"], str):
+            try:
+                fecha_obj = datetime.datetime.fromisoformat(transaccion_dict["fecha"])
+                db_trans.fecha = fecha_obj
+            except ValueError:
+                db_trans.fecha = transaccion_dict["fecha"]
+        else:
+            db_trans.fecha = transaccion_dict["fecha"]
+
     db.commit()
     db.refresh(db_trans)
     return db_trans

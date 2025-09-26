@@ -11,6 +11,7 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
     tipo: "gasto",
     cantidad: 0,
     descripcion: "",
+    fecha: "" 
   });
   const [editando, setEditando] = useState(null);
 
@@ -40,10 +41,21 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
   // Crear nueva transacción
   const guardarTransaccion = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:8000/transacciones/", {
+      const transaccionData = {
+        tipo: nuevaTransaccion.tipo,
+        cantidad: nuevaTransaccion.cantidad,
+        descripcion: nuevaTransaccion.descripcion,
+      };
+
+      // Solo añadir fecha si se especificó
+      if (nuevaTransaccion.fecha) {
+        transaccionData.fecha = new Date(nuevaTransaccion.fecha).toISOString();
+      }
+
+      const res = await fetch(`http://127.0.0.1:8000/transacciones`, { // ← Corregida URL (sin })
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(nuevaTransaccion),
+        body: JSON.stringify(transaccionData),
       });
       if (!res.ok) throw new Error("Error al guardar transacción");
       
@@ -53,7 +65,7 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
       setTransacciones(data);
       
       setMostrarFormulario(false);
-      setNuevaTransaccion({ tipo: "gasto", cantidad: 0, descripcion: "" });
+      setNuevaTransaccion({ tipo: "gasto", cantidad: 0, descripcion: "", fecha: "" });
     } catch (err) {
       console.error("Error al guardar:", err);
     }
@@ -81,18 +93,30 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
       tipo: transaccion.tipo,
       cantidad: transaccion.cantidad,
       descripcion: transaccion.descripcion || "",
+      fecha: new Date(transaccion.fecha).toISOString().slice(0, 10) // ← Formato YYYY-MM-DD para input date
     });
   };
 
   // Actualizar transacción
   const actualizarTransaccion = async () => {
     try {
+      const transaccionData = {
+        tipo: nuevaTransaccion.tipo,
+        cantidad: nuevaTransaccion.cantidad,
+        descripcion: nuevaTransaccion.descripcion,
+      };
+
+      // Solo añadir fecha si se especificó
+      if (nuevaTransaccion.fecha) {
+        transaccionData.fecha = new Date(nuevaTransaccion.fecha).toISOString();
+      }
+
       const res = await fetch(
         `http://127.0.0.1:8000/transacciones/${editando}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(nuevaTransaccion),
+          body: JSON.stringify(transaccionData), // ← Usando transaccionData con fecha procesada
         }
       );
       if (!res.ok) throw new Error("Error al actualizar transacción");
@@ -103,7 +127,7 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
       setTransacciones(data);
       
       setEditando(null);
-      setNuevaTransaccion({ tipo: "gasto", cantidad: 0, descripcion: "" });
+      setNuevaTransaccion({ tipo: "gasto", cantidad: 0, descripcion: "", fecha: "" });
     } catch (err) {
       console.error("Error al actualizar:", err);
     }
@@ -114,12 +138,11 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
 
   return (
     <div className="container mt-4">
-      {/* Header con filtro de mes */}
       <div className="card mb-4">
         <div className="card-header bg-primary text-white d-flex justify-content-between align-items-center">
           <h3 className="mb-0">💰 Transacciones de {nombresMeses[mesGlobal - 1]} {añoGlobal}</h3>
           <select 
-            className="form-select w-auto"
+            className="form-select w-auto text-dark"
             value={mesGlobal}
             onChange={(e) => setMesGlobal(parseInt(e.target.value))}
           >
@@ -169,7 +192,7 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
       <div className="card">
         <div className="card-header d-flex justify-content-between align-items-center">
           <h5 className="mb-0">Lista de Transacciones ({transacciones.length})</h5>
-          {!mostrarFormulario && (
+          {!mostrarFormulario && !editando && ( // ← Añadido !editando para evitar conflictos
             <button 
               className="btn btn-success"
               onClick={() => setMostrarFormulario(true)}
@@ -179,7 +202,7 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
           )}
         </div>
         <div className="card-body p-0">
-          {transacciones.length === 0 ? (
+          {transacciones.length === 0 && !mostrarFormulario ? ( // ← Añadido !mostrarFormulario
             <div className="text-center p-5">
               <div className="mb-3">
                 <i className="fas fa-receipt fa-3x text-muted"></i>
@@ -199,7 +222,7 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
               {mostrarFormulario && (
                 <div className="list-group-item bg-light">
                   <div className="row align-items-center">
-                    <div className="col-md-2">
+                    <div className="col-sm-2">
                       <select
                         className="form-select"
                         value={nuevaTransaccion.tipo}
@@ -209,7 +232,7 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
                         <option value="ingreso">🟢 Ingreso</option>
                       </select>
                     </div>
-                    <div className="col-md-4">
+                    <div className="col-md-3">
                       <input
                         type="text"
                         className="form-control"
@@ -218,7 +241,16 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
                         onChange={(e) => setNuevaTransaccion({...nuevaTransaccion, descripcion: e.target.value})}
                       />
                     </div>
-                    <div className="col-md-3">
+                    <div className="col-md-2">
+                      <input
+                        type="date"
+                        className="form-control"
+                        value={nuevaTransaccion.fecha}
+                        onChange={(e) => setNuevaTransaccion({...nuevaTransaccion, fecha: e.target.value})}
+                        placeholder="Fecha opcional"
+                      />
+                    </div>
+                    <div className="col-md-2">
                       <div className="input-group">
                         <input
                           type="number"
@@ -237,7 +269,13 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
                         <button className="btn btn-success btn-sm" onClick={guardarTransaccion}>
                           💾 Guardar
                         </button>
-                        <button className="btn btn-secondary btn-sm" onClick={() => setMostrarFormulario(false)}>
+                        <button 
+                          className="btn btn-secondary btn-sm" 
+                          onClick={() => {
+                            setMostrarFormulario(false);
+                            setNuevaTransaccion({ tipo: "gasto", cantidad: 0, descripcion: "", fecha: "" });
+                          }}
+                        >
                           ❌ Cancelar
                         </button>
                       </div>
@@ -246,7 +284,7 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
                 </div>
               )}
 
-              {/* Transacciones existentes */}
+              {/* Editar transacciones existentes */}
               {transacciones.map((t) => (
                 <div key={t.id} className="list-group-item">
                   {editando === t.id ? (
@@ -262,7 +300,7 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
                           <option value="ingreso">🟢 Ingreso</option>
                         </select>
                       </div>
-                      <div className="col-md-4">
+                      <div className="col-md-3">
                         <input
                           type="text"
                           className="form-control"
@@ -270,7 +308,15 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
                           onChange={(e) => setNuevaTransaccion({...nuevaTransaccion, descripcion: e.target.value})}
                         />
                       </div>
-                      <div className="col-md-3">
+                      <div className="col-md-2">
+                        <input
+                          type="date"
+                          className="form-control"
+                          value={nuevaTransaccion.fecha}
+                          onChange={(e) => setNuevaTransaccion({...nuevaTransaccion, fecha: e.target.value})}
+                        />
+                      </div>
+                      <div className="col-md-2">
                         <div className="input-group">
                           <input
                             type="number"
@@ -288,7 +334,13 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
                           <button className="btn btn-success btn-sm" onClick={actualizarTransaccion}>
                             💾 Guardar
                           </button>
-                          <button className="btn btn-secondary btn-sm" onClick={() => setEditando(null)}>
+                          <button 
+                            className="btn btn-secondary btn-sm" 
+                            onClick={() => {
+                              setEditando(null);
+                              setNuevaTransaccion({ tipo: "gasto", cantidad: 0, descripcion: "", fecha: "" });
+                            }}
+                          >
                             ❌ Cancelar
                           </button>
                         </div>
@@ -325,6 +377,7 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
                           <button 
                             className="btn btn-outline-primary btn-sm"
                             onClick={() => editarTransaccion(t)}
+                            disabled={mostrarFormulario} // ← Evitar conflictos
                           >
                             ✏️ Editar
                           </button>
@@ -335,6 +388,7 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
                                 eliminarTransaccion(t.id);
                               }
                             }}
+                            disabled={mostrarFormulario} // ← Evitar conflictos
                           >
                             🗑️ Eliminar
                           </button>
