@@ -1,11 +1,18 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, Field
 from datetime import datetime
+from typing import Optional, List
 
 class TransaccionBase(BaseModel):
     tipo: str
-    cantidad: float
-    descripcion: str | None = None
-    fecha: datetime = None  # ← Fecha opcional
+    cantidad: float = Field(..., gt=0, description="Debe ser mayor que 0") 
+    descripcion: Optional[str] = None
+    fecha: Optional[datetime] = None
+
+    @validator("tipo")
+    def tipo_valido(cls, v):
+        if v not in ("ingreso", "gasto"):
+            raise ValueError("El tipo debe ser 'ingreso' o 'gasto'")
+        return v
 
     @validator("cantidad")
     def cantidad_positiva(cls, v):
@@ -13,46 +20,79 @@ class TransaccionBase(BaseModel):
             raise ValueError("La cantidad debe ser un número positivo")
         return v
 
-    @validator("descripcion")
-    def descripcion_obligatoria_gasto(cls, v, values):
-        if values.get("tipo") == "gasto" and (v is None or v.strip() == ""):
-            raise ValueError("La descripción es obligatoria para gastos")
-        return v
+    @validator("descripcion")  # ← Validación para descripción obligatoria
+    def descripcion_obligatoria(cls, v):
+        if not v or v.strip() == "":
+            raise ValueError("La descripción es obligatoria")
+        return v.strip()
 
 class TransaccionCreate(TransaccionBase):
     pass
 
-class Transaccion(TransaccionBase):
+class Transaccion(BaseModel):  # ← Schema para respuestas (sin validaciones estrictas)
     id: int
-    fecha: datetime
+    tipo: str
+    cantidad: float
+    descripcion: Optional[str] = None
+    fecha: datetime  # ← No opcional porque tiene default en BD
 
     class Config:
-        orm_mode = True
+        orm_mode = True  # ← Pydantic V1
 
 class TransaccionUpdate(BaseModel):
-    tipo: str | None = None
-    cantidad: float | None = None
-    descripcion: str | None = None
-    fecha: datetime | None = None 
+    tipo: Optional[str] = None
+    cantidad: Optional[float] = Field(None, gt=0)
+    descripcion: Optional[str] = None
+    fecha: Optional[datetime] = None
+
+    @validator("tipo")
+    def tipo_valido(cls, v):
+        if v is not None and v not in ("ingreso", "gasto"):
+            raise ValueError("El tipo debe ser 'ingreso' o 'gasto'")
+        return v
+
+    @validator("cantidad")
+    def cantidad_positiva(cls, v):
+        if v is not None and v <= 0:
+            raise ValueError("La cantidad debe ser un número positivo")
+        return v
+
+    @validator("descripcion")
+    def descripcion_no_vacia(cls, v):
+        if v is not None and v.strip() == "":
+            raise ValueError("La descripción no puede estar vacía")
+        return v.strip() if v else v
 
 class TransaccionDelete(BaseModel):
-    id: int
-    
-    class Config:
-        orm_mode = True
+    mensaje: str
 
 # Schemas para Sueldo
 class SueldoBase(BaseModel):
-    cantidad: float
-    mes: int
-    anio: int
+    cantidad: float = Field(..., gt=0, description="Debe ser mayor que 0")
+    mes: int = Field(..., ge=1, le=12, description="Mes debe estar entre 1 y 12")
+    anio: int = Field(..., ge=2020, description="Año debe ser mayor o igual a 2020")
+
+    @validator("mes")
+    def mes_valido(cls, v):
+        if not (1 <= v <= 12):
+            raise ValueError("El mes debe estar entre 1 y 12")
+        return v
+
+    @validator("anio")
+    def anio_valido(cls, v):
+        if v < 2020 or v > 2030:
+            raise ValueError("El año debe estar entre 2020 y 2030")
+        return v
 
 class SueldoCreate(SueldoBase):
     pass
 
-class Sueldo(SueldoBase):
+class Sueldo(BaseModel):
     id: int
-    fecha: datetime
+    cantidad: float
+    mes: int
+    anio: int
+    fecha: datetime  # ← No opcional porque tiene default en BD
 
     class Config:
-        orm_mode = True
+        orm_mode = True  # ← Pydantic V1

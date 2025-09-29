@@ -23,7 +23,13 @@ def root():
 # Endpoints para Transacciones
 @app.post("/transacciones", response_model=schemas.Transaccion)
 def crear_transaccion(transaccion: schemas.TransaccionCreate, db: Session = Depends(database.get_db)):
-    return crud.crear_transaccion(db, transaccion, fecha_custom=transaccion.fecha)
+    transaccion = crud.crear_transaccion(db, transaccion, fecha_custom=transaccion.fecha)
+    if transaccion is None:
+        raise HTTPException(
+            status_code=400, 
+            detail="Error al crear la transacción"
+        )
+    return transaccion
 
 @app.get("/transacciones", response_model=list[schemas.Transaccion])
 def leer_transacciones(mes: int = None, anio: int = None, skip: int = 0, limit: int = 100, db: Session = Depends(database.get_db)):
@@ -33,7 +39,10 @@ def leer_transacciones(mes: int = None, anio: int = None, skip: int = 0, limit: 
 def actualizar_transaccion(transaccion_id: int, transaccion: schemas.TransaccionUpdate, db: Session = Depends(database.get_db)):
     db_trans = crud.actualizar_transaccion(db, transaccion_id, transaccion)
     if not db_trans:
-        raise HTTPException(status_code=404, detail="Transacción no encontrada")
+        raise HTTPException(
+            status_code=404, 
+            detail="Transacción no encontrada"
+        )
     return db_trans
 
 @app.delete("/transacciones/{transaccion_id}", response_model=schemas.Transaccion)
@@ -50,7 +59,13 @@ def crear_o_actualizar_sueldo(sueldo: schemas.SueldoCreate, db: Session = Depend
 
 @app.get("/sueldos/{anio}/{mes}", response_model=schemas.Sueldo | None)
 def obtener_sueldo_mes(anio: int, mes: int, db: Session = Depends(database.get_db)):
-    return crud.obtener_sueldo_mes(db, mes, anio)
+    sueldo = crud.obtener_sueldo_mes(db, mes=mes, anio=anio)
+    if sueldo is None:
+        raise HTTPException(
+            status_code=404, 
+            detail=f"Sueldo no encontrado para el mes {mes} de {anio}"
+        )
+    return sueldo
 
 @app.get("/sueldos", response_model=list[schemas.Sueldo])
 def obtener_sueldos(skip: int = 0, limit: int = 100, db: Session = Depends(database.get_db)):

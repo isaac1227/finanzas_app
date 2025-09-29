@@ -5,18 +5,17 @@ import datetime
 class Transaccion(Base):
     __tablename__ = "transacciones"
     id = Column(Integer, primary_key=True, index=True)
-    tipo = Column(String)  # "ingreso" o "gasto"
-    cantidad = Column(Float)
-    fecha = Column(DateTime, default=datetime.datetime.utcnow)
-    descripcion = Column(String)
+    tipo = Column(String, nullable=False)
+    cantidad = Column(Float, nullable=False)
+    fecha = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
+    descripcion = Column(String, nullable=True)
 
 class Sueldo(Base):
-    __tablename__ = "sueldos"
+    __tablename__ = "sueldos" 
     id = Column(Integer, primary_key=True, index=True)
     cantidad = Column(Float, nullable=False)
-    fecha = Column(DateTime, default=datetime.datetime.utcnow)
-    mes = Column(Integer, nullable=False)  # 1-12
+    mes = Column(Integer, nullable=False)
     anio = Column(Integer, nullable=False)
+    fecha = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
     
-    # Constraint único: solo un sueldo por mes/año
-    __table_args__ = (UniqueConstraint('mes', 'anio', name='unique_sueldo_mes_anio'),)
+    __table_args__ = (UniqueConstraint('mes', 'anio', name='uq_mes_anio'),)
