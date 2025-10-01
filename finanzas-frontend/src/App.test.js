@@ -1,8 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+test('renderiza correctamente la aplicación', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  // Verificar que la aplicación se renderiza con el navbar y contenido inicial
+  expect(screen.getByRole('heading', { name: 'Inicio' })).toBeInTheDocument();
+  expect(screen.getByText('Transacciones')).toBeInTheDocument();
+  expect(screen.getByText('Cargando...')).toBeInTheDocument();
 });
