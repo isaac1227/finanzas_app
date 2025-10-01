@@ -11,7 +11,7 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
     tipo: "gasto",
     cantidad: 0,
     descripcion: "",
-    fecha: "" 
+    fecha: `${añoGlobal}-${String(mesGlobal).padStart(2, '0')}-01` // Fecha inicial basada en el mes y año seleccionados
   });
   const [editando, setEditando] = useState(null);
 
@@ -36,6 +36,14 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
       }
     };
     fetchTransacciones();
+  }, [mesGlobal, añoGlobal]);
+
+  // Actualizar el estado de nuevaTransaccion al cambiar el mes o año global
+  useEffect(() => {
+    setNuevaTransaccion((prev) => ({
+      ...prev,
+      fecha: `${añoGlobal}-${String(mesGlobal).padStart(2, '0')}-01`
+    }));
   }, [mesGlobal, añoGlobal]);
 
   // Crear nueva transacción
