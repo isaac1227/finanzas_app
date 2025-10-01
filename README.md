@@ -452,3 +452,44 @@ Este proyecto demuestra competencias en:
 
 **📧 Contacto**: [isaac1227@github.com](mailto:isaac1227@github.com)  
 **🔗 Portfolio**: [Más proyectos en mi GitHub](https://github.com/isaac1227)
+
+## 🐳 Dockerización Completa
+
+El proyecto ha sido completamente dockerizado para facilitar su despliegue y desarrollo. A continuación, se describen los detalles de la configuración:
+
+### **Servicios Configurados**
+- **Backend**: Contenedor basado en FastAPI con auto-reload habilitado para desarrollo.
+- **Frontend**: Contenedor basado en React con servidor de desarrollo.
+- **Base de Datos**: PostgreSQL configurado con persistencia de datos.
+- **Adminer**: Herramienta de administración de base de datos (solo en desarrollo).
+
+### **Características Clave**
+- **Archivos Docker**: Dockerfiles separados para backend y frontend.
+- **Orquestación**: Uso de `docker-compose.yml` para gestionar todos los servicios.
+- **Variables de Entorno**: Configuración centralizada mediante archivos `.env`.
+- **Perfiles de Desarrollo**: Uso de perfiles en Docker Compose para incluir herramientas como Adminer.
+- **Reconstrucción Simplificada**: Comandos para reconstruir imágenes tras cambios en el código.
+
+### **Comandos Principales**
+```bash
+# Iniciar todos los servicios
+docker-compose up -d
+
+# Reconstruir imágenes después de cambios
+docker-compose up -d --build
+
+# Parar y limpiar todos los servicios
+docker-compose down -v
+```
+
+### **Accesos**
+- **Frontend**: [http://localhost:3001](http://localhost:3001)
+- **Backend API**: [http://localhost:8001](http://localhost:8001)
+- **Documentación API**: [http://localhost:8001/docs](http://localhost:8001/docs)
+- **Adminer**: [http://localhost:8080](http://localhost:8080) (solo en desarrollo)
+
+### **Beneficios de la Dockerización**
+- **Portabilidad**: El proyecto puede ejecutarse en cualquier máquina con Docker instalado.
+- **Aislamiento**: Cada servicio se ejecuta en su propio contenedor, evitando conflictos.
+- **Facilidad de Uso**: Comandos simples para iniciar, detener y reconstruir servicios.
+- **Optimización para Desarrollo**: Auto-reload habilitado para backend y frontend.
