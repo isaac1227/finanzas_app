@@ -1,0 +1,85 @@
+# 🐳 Docker Compose - Finanzas App Full Stack
+version: '3.8'
+
+services:
+  # 🗄️ PostgreSQL Database
+  db:
+    image: postgres:15
+    container_name: finanzas_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5433:5432"  # Puerto externo diferente para evitar conflictos
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - finanzas_network
+
+  # 🐍 Backend API - FastAPI
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: finanzas_backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      ENVIRONMENT: development
+    ports:
+      - "8001:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app  # Montar el código local en el contenedor
+    command: >
+      uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - finanzas_network
+
+  # ⚛️ Frontend - React
+  frontend:
+    build:
+      context: ./finanzas-frontend
+      dockerfile: Dockerfile
+    container_name: finanzas_frontend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"  # Mapear el puerto 3001 del contenedor al 3001 del host
+    volumes:
+      - ./finanzas-frontend:/app  # Montar el código local en el contenedor
+      - /app/node_modules  # Evitar conflictos con node_modules
+    networks:
+      - finanzas_network
+
+  # 📊 Adminer - Administrador de BD (opcional, solo desarrollo)
+  adminer:
+    image: adminer:4-standalone
+    container_name: finanzas_adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - finanzas_network
+    # profiles:
+    #   - dev  # Solo se ejecuta con --profile dev
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  finanzas_network:
+    driver: bridge

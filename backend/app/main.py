@@ -10,7 +10,7 @@ app = FastAPI(title="Finanzas App")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"], # React
+    allow_origins=["http://localhost:3001"], # React
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

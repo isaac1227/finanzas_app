@@ -17,7 +17,7 @@ const Inicio = ({ mesGlobal, setMesGlobal, añoGlobal }) => {
   useEffect(() => {
     const cargarSaldoTotal = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/saldo-total?mes=${mesGlobal}&anio=${añoGlobal}`);
+        const response = await fetch(`http://127.0.0.1:8001/saldo-total?mes=${mesGlobal}&anio=${añoGlobal}`);
         if (response.ok) {
           const data = await response.json();
           setSaldoTotal(data);
@@ -38,7 +38,7 @@ const Inicio = ({ mesGlobal, setMesGlobal, añoGlobal }) => {
     const cargarSueldoActual = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`http://127.0.0.1:8000/sueldos/${añoGlobal}/${mesGlobal}`);
+        const response = await fetch(`http://127.0.0.1:8001/sueldos/${añoGlobal}/${mesGlobal}`);
         if (response.ok) {
           const sueldo = await response.json();
           setSueldoActual(sueldo);
@@ -67,7 +67,7 @@ const Inicio = ({ mesGlobal, setMesGlobal, añoGlobal }) => {
     }
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/sueldos", {
+      const response = await fetch("http://127.0.0.1:8001/sueldos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -83,7 +83,7 @@ const Inicio = ({ mesGlobal, setMesGlobal, añoGlobal }) => {
         setEditando(false);
         
         // Recargar saldo total
-        const resSaldo = await fetch(`http://127.0.0.1:8000/saldo-total?mes=${mesGlobal}&anio=${añoGlobal}`);
+        const resSaldo = await fetch(`http://127.0.0.1:8001/saldo-total?mes=${mesGlobal}&anio=${añoGlobal}`);
         if (resSaldo.ok) {
           const dataSaldo = await resSaldo.json();
           setSaldoTotal(dataSaldo);

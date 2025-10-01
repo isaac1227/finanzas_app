@@ -25,7 +25,7 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
     const fetchTransacciones = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`http://127.0.0.1:8000/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
+        const res = await fetch(`http://127.0.0.1:8001/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
         if (!res.ok) throw new Error("Error al obtener transacciones");
         const data = await res.json();
         setTransacciones(data);
@@ -52,7 +52,7 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
         transaccionData.fecha = new Date(nuevaTransaccion.fecha).toISOString();
       }
 
-      const res = await fetch(`http://127.0.0.1:8000/transacciones`, { // ← Corregida URL (sin })
+      const res = await fetch(`http://127.0.0.1:8001/transacciones`, { // ← Corregida URL (sin })
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(transaccionData),
@@ -60,7 +60,7 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
       if (!res.ok) throw new Error("Error al guardar transacción");
       
       // Recargar transacciones del mes seleccionado
-      const resTransacciones = await fetch(`http://127.0.0.1:8000/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
+      const resTransacciones = await fetch(`http://127.0.0.1:8001/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
       const data = await resTransacciones.json();
       setTransacciones(data);
       
@@ -74,11 +74,11 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
   // Eliminar transacción
   const eliminarTransaccion = async (id) => {
     try {
-      await fetch(`http://127.0.0.1:8000/transacciones/${id}`, {
+      await fetch(`http://127.0.0.1:8001/transacciones/${id}`, {
         method: "DELETE",
       });
       // Recargar transacciones del mes seleccionado
-      const res = await fetch(`http://127.0.0.1:8000/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
+      const res = await fetch(`http://127.0.0.1:8001/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
       const data = await res.json();
       setTransacciones(data);
     } catch (err) {
@@ -112,7 +112,7 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
       }
 
       const res = await fetch(
-        `http://127.0.0.1:8000/transacciones/${editando}`,
+        `http://127.0.0.1:8001/transacciones/${editando}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -122,7 +122,7 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
       if (!res.ok) throw new Error("Error al actualizar transacción");
       
       // Recargar transacciones del mes seleccionado
-      const resTransacciones = await fetch(`http://127.0.0.1:8000/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
+      const resTransacciones = await fetch(`http://127.0.0.1:8001/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
       const data = await resTransacciones.json();
       setTransacciones(data);
       

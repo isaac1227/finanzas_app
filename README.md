@@ -91,7 +91,57 @@ finanzas-app/
 
 ## 🚀 Instalación y Configuración
 
-### **Prerrequisitos**
+### **🐳 Opción 1: Con Docker (RECOMENDADO)**
+
+#### **Prerrequisitos**
+```bash
+# Solo necesitas Docker y Docker Compose
+docker --version     # >= 20.0
+docker-compose --version  # >= 2.0
+```
+
+#### **Instalación rápida con Docker**
+```bash
+# 1. Clonar repositorio
+git clone https://github.com/isaac1227/finanzas_app.git
+cd finanzas_app
+
+# 2. Ejecutar toda la aplicación
+docker-compose up -d
+
+# 3. ¡Listo! Acceder a:
+# - Frontend: http://localhost:3001
+# - Backend API: http://localhost:8001  
+# - Docs API: http://localhost:8001/docs
+# - Adminer DB: http://localhost:8080 (dev)
+```
+
+#### **Comandos Docker útiles**
+```bash
+# Ver logs en tiempo real
+docker-compose logs -f
+
+# Solo backend + database
+docker-compose up -d postgres backend
+
+# Incluir Adminer (desarrollo)
+docker-compose --profile dev up -d
+
+# Reconstruir después de cambios
+docker-compose up -d --build
+
+# Parar todo
+docker-compose down
+
+# Limpiar volúmenes (¡CUIDADO! - borra datos)
+docker-compose down -v
+```
+
+---
+
+### **💻 Opción 2: Instalación Manual (Desarrollo)**
+
+#### **Prerrequisitos**
 ```bash
 # Verificar versiones
 python3 --version  # >= 3.11
@@ -100,13 +150,13 @@ npm --version      # >= 8
 psql --version     # PostgreSQL 12+
 ```
 
-### **1. Clonar el repositorio**
+#### **1. Clonar el repositorio**
 ```bash
 git clone https://github.com/isaac1227/finanzas_app.git
 cd finanzas_app
 ```
 
-### **2. Configurar PostgreSQL**
+#### **2. Configurar PostgreSQL**
 ```bash
 # Acceder a PostgreSQL
 sudo -u postgres psql
@@ -118,7 +168,7 @@ GRANT ALL PRIVILEGES ON DATABASE finanzas_db TO finanzas_user;
 \q
 ```
 
-### **3. Configurar Backend**
+#### **3. Configurar Backend**
 ```bash
 cd backend
 
@@ -136,7 +186,7 @@ echo 'DATABASE_URL="postgresql://finanzas_user:tu_password_seguro@localhost/fina
 uvicorn app.main:app --reload --port 8000
 ```
 
-### **4. Configurar Frontend**
+#### **4. Configurar Frontend**
 ```bash
 cd ../finanzas-frontend
 
@@ -383,7 +433,7 @@ python3 -m pytest --tb=short                 # Output compacto
 
 - [ ] **Autenticación**: JWT tokens con FastAPI Security
 - [x] **Testing**: Tests unitarios con pytest y React Testing Library ✅  
-- [ ] **Docker**: Containerización completa del stack
+- [x] **Docker**: Containerización completa del stack ✅
 - [ ] **CI/CD**: GitHub Actions para deployment automático
 - [ ] **Charts**: Gráficos con Chart.js o D3.js
 - [ ] **Mobile**: Progressive Web App (PWA)
