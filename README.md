@@ -296,10 +296,93 @@ SELECT current_user;
 - **Documentación API**: http://localhost:8000/docs (Swagger UI automático)
 - **Base de datos**: localhost:5432/finanzas_db
 
+## 🧪 Testing y Calidad de Código
+
+### **Suite de Tests Completa Implementada**
+
+El proyecto cuenta con **68 tests automatizados** que cubren tanto backend como frontend:
+
+#### **🔧 Backend Testing (36 tests)**
+```bash
+cd backend
+python3 -m pytest -v
+```
+
+**Cobertura Backend:**
+- ✅ **16 tests CRUD**: Operaciones de base de datos con SQLAlchemy
+- ✅ **20 tests API**: Endpoints FastAPI con TestClient
+- ✅ **Fixtures compartidas**: Base de datos SQLite temporal para tests
+- ✅ **Dependency injection**: Override de dependencias para testing
+- ✅ **Validaciones**: Tests de errores y edge cases
+
+#### **⚛️ Frontend Testing (32 tests)**
+```bash
+cd finanzas-frontend
+npm test                    # Todos los tests
+npm test -- --watchAll=false  # Sin modo watch
+```
+
+**Cobertura Frontend:**
+- ✅ **Navbar (2 tests)**: Navegación y routing básico
+- ✅ **Inicio (6 tests)**: Componente complejo con API calls, loading states
+- ✅ **Transacciones (10 tests)**: CRUD completo, formularios, validaciones
+- ✅ **Gráficos (12 tests)**: Chart.js mock, visualización de datos
+- ✅ **App (1 test)**: Integración y renderizado general
+- ✅ **BasicTest (1 test)**: Verificación de setup
+
+#### **🛠️ Tecnologías de Testing Utilizadas**
+
+**Backend:**
+- **pytest**: Framework principal de testing
+- **FastAPI TestClient**: Cliente HTTP para testing de APIs  
+- **SQLAlchemy**: Base de datos temporal para tests aislados
+- **Fixtures**: Configuración reutilizable de tests
+
+**Frontend:**
+- **React Testing Library**: Testing centrado en el usuario
+- **Jest**: Framework de testing y mocking
+- **@testing-library/jest-dom**: Matchers adicionales para DOM
+- **React Router Testing**: Testing de navegación
+
+#### **🎯 Características Avanzadas de Testing**
+
+- **🎭 Mocking avanzado**: fetch API, Chart.js, React Router
+- **⏳ Testing asíncrono**: waitFor, estados de loading  
+- **🔄 Testing de estados**: loading, error, éxito, vacío
+- **📝 Testing de formularios**: input, submit, validaciones
+- **🖱️ Testing de interacciones**: click, change, confirmaciones
+- **📊 Testing de visualizaciones**: Chart.js components mock
+- **🛣️ Testing de navegación**: BrowserRouter, MemoryRouter
+
+#### **📊 Comandos de Testing Específicos**
+```bash
+# Frontend - Tests por componente
+npm test -- --testPathPattern=Navbar.test.js
+npm test -- --testPathPattern=Inicio.test.js
+npm test -- --testPathPattern=Transacciones.test.js
+npm test -- --testPathPattern=Graficos.test.js
+
+# Frontend - Con verbose output
+npm test -- --verbose --watchAll=false
+
+# Backend - Tests por categoría
+python3 -m pytest tests/test_crud.py -v      # Solo CRUD
+python3 -m pytest tests/test_main.py -v      # Solo API
+python3 -m pytest --tb=short                 # Output compacto
+```
+
+#### **✅ Beneficios Conseguidos**
+- **Detección temprana de bugs** y regresiones
+- **Refactoring seguro** con confianza en los cambios
+- **Documentación viva** del comportamiento esperado  
+- **CI/CD ready** para integración continua
+- **Patrones reutilizables** para futuros componentes
+- **Cobertura completa** de funcionalidades críticas
+
 ## 📚 Próximas Mejoras (Roadmap de Aprendizaje)
 
 - [ ] **Autenticación**: JWT tokens con FastAPI Security
-- [ ] **Testing**: Tests unitarios con pytest y React Testing Library  
+- [x] **Testing**: Tests unitarios con pytest y React Testing Library ✅  
 - [ ] **Docker**: Containerización completa del stack
 - [ ] **CI/CD**: GitHub Actions para deployment automático
 - [ ] **Charts**: Gráficos con Chart.js o D3.js
