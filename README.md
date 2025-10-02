@@ -453,7 +453,25 @@ Este proyecto demuestra competencias en:
 **📧 Contacto**: [isaac1227@github.com](mailto:isaac1227@github.com)  
 **🔗 Portfolio**: [Más proyectos en mi GitHub](https://github.com/isaac1227)
 
-## 🐳 Dockerización Completa
+## � Notificaciones (Frontend)
+
+Se ha añadido un sistema de notificaciones en el frontend usando la librería `react-hot-toast`.
+
+- Ubicación: la integración global se realiza en `finanzas-frontend/src/App.js` con `<Toaster />`.
+- Uso en componentes: los componentes (por ejemplo `Transacciones.js` e `Inicio.js`) llaman a `toast.success(...)` y `toast.error(...)` para mostrar mensajes de resultado o validación.
+- Mensajes comunes:
+    - "Introduce una cantidad válida para la transacción"
+    - "Introduce una descripción para la transacción"
+    - "Transacción guardada correctamente"
+    - "Transacción actualizada correctamente"
+
+Cómo probar:
+1. Arranca la aplicación (docker-compose o `npm start` dentro de `finanzas-frontend`).
+2. Ve a la sección "Transacciones" del frontend.
+3. Intenta crear una transacción sin cantidad o sin descripción — aparecerá un toast de error.
+4. Crea/edita correctamente una transacción — aparecerá un toast de éxito.
+
+## �🐳 Dockerización Completa
 
 El proyecto ha sido completamente dockerizado para facilitar su despliegue y desarrollo. A continuación, se describen los detalles de la configuración:
 
