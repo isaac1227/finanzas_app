@@ -82,8 +82,8 @@ describe('Inicio Component - Tests Complejos', () => {
     
     // Verificar que se hicieron las llamadas correctas
     expect(fetch).toHaveBeenCalledTimes(2);
-    expect(fetch).toHaveBeenCalledWith('http://127.0.0.1:8000/saldo-total?mes=10&anio=2025');
-    expect(fetch).toHaveBeenCalledWith('http://127.0.0.1:8000/sueldos/2025/10');
+    expect(fetch).toHaveBeenCalledWith('http://127.0.0.1:8001/saldo-total?mes=10&anio=2025');
+    expect(fetch).toHaveBeenCalledWith('http://127.0.0.1:8001/sueldos/2025/10');
   });
 
   // 🧪 TEST 3: Manejo de errores de API
@@ -179,7 +179,7 @@ describe('Inicio Component - Tests Complejos', () => {
     });
 
     // Verificar llamada a API de guardado
-    expect(fetch).toHaveBeenCalledWith('http://127.0.0.1:8000/sueldos', {
+    expect(fetch).toHaveBeenCalledWith('http://127.0.0.1:8001/sueldos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
