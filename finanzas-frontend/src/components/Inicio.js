@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Graficos from "./Graficos";
+import toast from 'react-hot-toast';
 
 const Inicio = ({ mesGlobal, setMesGlobal, añoGlobal }) => {
   const [sueldoActual, setSueldoActual] = useState(null);
@@ -61,10 +62,10 @@ const Inicio = ({ mesGlobal, setMesGlobal, añoGlobal }) => {
 
   // Guardar o actualizar sueldo
   const guardarSueldo = async () => {
-    if (!nuevoSueldo || parseFloat(nuevoSueldo) <= 0) {
-      alert("Por favor ingresa una cantidad válida");
-      return;
-    }
+      if (!nuevoSueldo || parseFloat(nuevoSueldo) <= 0) {
+        toast.error("Por favor ingresa una cantidad válida");
+        return;
+      }
 
     try {
       const response = await fetch("http://127.0.0.1:8001/sueldos", {
@@ -81,6 +82,7 @@ const Inicio = ({ mesGlobal, setMesGlobal, añoGlobal }) => {
         const sueldo = await response.json();
         setSueldoActual(sueldo);
         setEditando(false);
+        toast.success("Sueldo guardado correctamente");
         
         // Recargar saldo total
         const resSaldo = await fetch(`http://127.0.0.1:8001/saldo-total?mes=${mesGlobal}&anio=${añoGlobal}`);
@@ -89,11 +91,11 @@ const Inicio = ({ mesGlobal, setMesGlobal, añoGlobal }) => {
           setSaldoTotal(dataSaldo);
         }
       } else {
-        alert("Error al guardar el sueldo");
+        toast.error("Error al guardar el sueldo");
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Error al guardar el sueldo");
+      toast.error("Error al guardar el sueldo");
     }
   };
 

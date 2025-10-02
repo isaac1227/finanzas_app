@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar";
 import Transacciones from "./components/Transacciones";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState } from 'react';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   const fechaActual = new Date();
@@ -15,6 +16,7 @@ function App() {
   return (
     <Router>
       <Navbar />
+      <Toaster position="top-right" />
       <Routes>
         <Route path="/" element={
           <Inicio 

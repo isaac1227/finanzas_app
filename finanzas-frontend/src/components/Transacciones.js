@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import toast from 'react-hot-toast';
 
 const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
   const [transacciones, setTransacciones] = useState([]);
@@ -31,6 +32,7 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
         setTransacciones(data);
       } catch (err) {
         setError(err.message);
+        toast.error("Error al cargar las transacciones");
       } finally {
         setLoading(false);
       }
@@ -48,6 +50,16 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
 
   // Crear nueva transacción
   const guardarTransaccion = async () => {
+    // Validación cliente: cantidad requerida y mayor que 0
+    if (!nuevaTransaccion.cantidad || Number(nuevaTransaccion.cantidad) <= 0) {
+      toast.error('Introduce una cantidad válida para la transacción');
+      return;
+    }
+    // Validación cliente: descripción requerida
+    if (!nuevaTransaccion.descripcion || nuevaTransaccion.descripcion.trim().length === 0) {
+      toast.error('Introduce una descripción para la transacción');
+      return;
+    }
     try {
       const transaccionData = {
         tipo: nuevaTransaccion.tipo,
@@ -71,11 +83,11 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
       const resTransacciones = await fetch(`http://127.0.0.1:8001/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
       const data = await resTransacciones.json();
       setTransacciones(data);
-      
+      toast.success("Transacción guardada correctamente");
       setMostrarFormulario(false);
       setNuevaTransaccion({ tipo: "gasto", cantidad: 0, descripcion: "", fecha: "" });
     } catch (err) {
-      console.error("Error al guardar:", err);
+      toast.error("Error al guardar la transacción");
     }
   };
 
@@ -89,8 +101,9 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
       const res = await fetch(`http://127.0.0.1:8001/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
       const data = await res.json();
       setTransacciones(data);
+      toast.success("Transacción eliminada correctamente");
     } catch (err) {
-      console.error("Error al eliminar:", err);
+      toast.error("Error al eliminar la transacción");
     }
   };
 
@@ -107,6 +120,16 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
 
   // Actualizar transacción
   const actualizarTransaccion = async () => {
+    // Validación cliente: cantidad requerida y mayor que 0
+    if (!nuevaTransaccion.cantidad || Number(nuevaTransaccion.cantidad) <= 0) {
+      toast.error('Introduce una cantidad válida para la transacción');
+      return;
+    }
+    // Validación cliente: descripción requerida
+    if (!nuevaTransaccion.descripcion || nuevaTransaccion.descripcion.trim().length === 0) {
+      toast.error('Introduce una descripción para la transacción');
+      return;
+    }
     try {
       const transaccionData = {
         tipo: nuevaTransaccion.tipo,
@@ -133,11 +156,11 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
       const resTransacciones = await fetch(`http://127.0.0.1:8001/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
       const data = await resTransacciones.json();
       setTransacciones(data);
-      
-      setEditando(null);
-      setNuevaTransaccion({ tipo: "gasto", cantidad: 0, descripcion: "", fecha: "" });
+  toast.success('Transacción actualizada correctamente');
+  setEditando(null);
+  setNuevaTransaccion({ tipo: "gasto", cantidad: 0, descripcion: "", fecha: "" });
     } catch (err) {
-      console.error("Error al actualizar:", err);
+      toast.error("Error al actualizar la transacción");
     }
   };
 
