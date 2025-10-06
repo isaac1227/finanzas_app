@@ -524,14 +524,23 @@ python3 -m pytest --tb=short                 # Output compacto
 - **Patrones reutilizables** para futuros componentes
 - **Cobertura completa** de funcionalidades críticas
 
-## 📚 Próximas Mejoras (Roadmap de Aprendizaje)
+## 📚 Roadmap de Aprendizaje - Progreso Actual
 
-- [ ] **Autenticación**: JWT tokens con FastAPI Security
-- [x] **Testing**: Tests unitarios con pytest y React Testing Library ✅  
-- [x] **Docker**: Containerización completa del stack ✅
-- [ ] **CI/CD**: GitHub Actions para deployment automático
-- [ ] **Charts**: Gráficos con Chart.js o D3.js
-- [ ] **Mobile**: Progressive Web App (PWA)
+### **✅ Completadas**
+- [x] **🔐 Autenticación JWT completa**: Registro, login, tokens, separación usuarios ✅  
+- [x] **📊 Gráficos interactivos**: Chart.js con métricas financieras ✅
+- [x] **🧪 Testing**: Tests unitarios con pytest y React Testing Library ✅  
+- [x] **🐳 Docker**: Containerización completa del stack ✅
+- [x] **🎨 UX/UI moderna**: Bootstrap, toasts, diseño responsivo ✅
+- [x] **📚 Documentación**: README completo con diagramas y guías ✅
+
+### **🚧 En Progreso / Próximas**
+- [ ] **⚙️ CI/CD**: GitHub Actions para deployment automático
+- [ ] **📱 Mobile**: Progressive Web App (PWA) 
+- [ ] **🔄 Real-time**: WebSockets para actualizaciones en vivo
+- [ ] **📈 Analytics**: Dashboard con métricas avanzadas
+- [ ] **🌐 Multi-idioma**: Internacionalización (i18n)
+- [ ] **☁️ Cloud Deploy**: Despliegue en AWS/Vercel/Railway
 
 ## 🤝 Propósito Educativo
 
@@ -594,12 +603,6 @@ docker-compose up -d --build
 # Parar y limpiar todos los servicios
 docker-compose down -v
 ```
-
-### **Accesos**
-- **Frontend**: [http://localhost:3001](http://localhost:3001)
-- **Backend API**: [http://localhost:8001](http://localhost:8001)
-- **Documentación API**: [http://localhost:8001/docs](http://localhost:8001/docs)
-- **Adminer**: [http://localhost:8080](http://localhost:8080) (solo en desarrollo)
 
 ### **Beneficios de la Dockerización**
 - **Portabilidad**: El proyecto puede ejecutarse en cualquier máquina con Docker instalado.
