@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { authService } from "../services/authService";
 import toast from 'react-hot-toast';
 
 const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
@@ -26,7 +27,7 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
     const fetchTransacciones = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`http://127.0.0.1:8001/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
+        const res = await authService.apiCall(`/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
         if (!res.ok) throw new Error("Error al obtener transacciones");
         const data = await res.json();
         setTransacciones(data);
@@ -72,15 +73,14 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
         transaccionData.fecha = new Date(nuevaTransaccion.fecha).toISOString();
       }
 
-      const res = await fetch(`http://127.0.0.1:8001/transacciones`, { // ← Corregida URL (sin })
+      const res = await authService.apiCall(`/transacciones`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(transaccionData),
       });
       if (!res.ok) throw new Error("Error al guardar transacción");
       
       // Recargar transacciones del mes seleccionado
-      const resTransacciones = await fetch(`http://127.0.0.1:8001/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
+      const resTransacciones = await authService.apiCall(`/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
       const data = await resTransacciones.json();
       setTransacciones(data);
       toast.success("Transacción guardada correctamente");
@@ -94,11 +94,11 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
   // Eliminar transacción
   const eliminarTransaccion = async (id) => {
     try {
-      await fetch(`http://127.0.0.1:8001/transacciones/${id}`, {
+      await authService.apiCall(`/transacciones/${id}`, {
         method: "DELETE",
       });
       // Recargar transacciones del mes seleccionado
-      const res = await fetch(`http://127.0.0.1:8001/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
+      const res = await authService.apiCall(`/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
       const data = await res.json();
       setTransacciones(data);
       toast.success("Transacción eliminada correctamente");
@@ -142,18 +142,17 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
         transaccionData.fecha = new Date(nuevaTransaccion.fecha).toISOString();
       }
 
-      const res = await fetch(
-        `http://127.0.0.1:8001/transacciones/${editando}`,
+      const res = await authService.apiCall(
+        `/transacciones/${editando}`,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(transaccionData), // ← Usando transaccionData con fecha procesada
         }
       );
       if (!res.ok) throw new Error("Error al actualizar transacción");
       
       // Recargar transacciones del mes seleccionado
-      const resTransacciones = await fetch(`http://127.0.0.1:8001/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
+      const resTransacciones = await authService.apiCall(`/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
       const data = await resTransacciones.json();
       setTransacciones(data);
   toast.success('Transacción actualizada correctamente');

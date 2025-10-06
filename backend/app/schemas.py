@@ -96,3 +96,29 @@ class Sueldo(BaseModel):
 
     class Config:
         orm_mode = True  # ← Pydantic V1
+
+# Schemas para autenticación
+class UserBase(BaseModel):
+    email: str
+
+class UserCreate(UserBase):
+    password: str  # Contraseña en texto plano (solo para registro/login)
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+class User(UserBase):
+    id: int
+    is_active: bool
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+class TokenData(BaseModel):
+    email: Optional[str] = None

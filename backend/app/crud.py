@@ -3,8 +3,9 @@ from sqlalchemy import extract, func
 from . import models, schemas
 import datetime
 
-def crear_transaccion(db: Session, transaccion: schemas.TransaccionCreate, fecha_custom: datetime.datetime = None):
+def crear_transaccion(db: Session, transaccion: schemas.TransaccionCreate, user_id: int, fecha_custom: datetime.datetime = None):
     transaccion_dict = transaccion.dict()
+    transaccion_dict['user_id'] = user_id  # ← NUEVO: asociar al usuario
     
     if transaccion.fecha:
         transaccion_dict['fecha'] = transaccion.fecha
@@ -17,8 +18,8 @@ def crear_transaccion(db: Session, transaccion: schemas.TransaccionCreate, fecha
     db.refresh(db_trans)
     return db_trans
 
-def obtener_transacciones(db: Session, mes: int = None, anio: int = None, skip: int = 0, limit: int = 100):
-    query = db.query(models.Transaccion)
+def obtener_transacciones(db: Session, user_id: int, mes: int = None, anio: int = None, skip: int = 0, limit: int = 100):
+    query = db.query(models.Transaccion).filter(models.Transaccion.user_id == user_id)  # ← NUEVO: filtrar por usuario
     if mes:
         query = query.filter(extract('month', models.Transaccion.fecha) == mes)
     if anio:
@@ -72,11 +73,12 @@ def eliminar_transaccion(db: Session, transaccion_id: int):
     return db_trans
 
 # CRUD para Sueldos
-def crear_o_actualizar_sueldo(db: Session, sueldo: schemas.SueldoCreate):
-    # Verificar si ya existe un sueldo para este mes/año
+def crear_o_actualizar_sueldo(db: Session, sueldo: schemas.SueldoCreate, user_id: int):
+    # Verificar si ya existe un sueldo para este mes/año/usuario
     db_sueldo = db.query(models.Sueldo).filter(
         models.Sueldo.mes == sueldo.mes,
-        models.Sueldo.anio == sueldo.anio
+        models.Sueldo.anio == sueldo.anio,
+        models.Sueldo.user_id == user_id  # ← NUEVO: filtrar por usuario
     ).first()
     
     if db_sueldo:
@@ -87,17 +89,46 @@ def crear_o_actualizar_sueldo(db: Session, sueldo: schemas.SueldoCreate):
         return db_sueldo
     else:
         # Crear nuevo
-        db_sueldo = models.Sueldo(**sueldo.dict())
+        sueldo_dict = sueldo.dict()
+        sueldo_dict['user_id'] = user_id  # ← NUEVO: asociar al usuario
+        db_sueldo = models.Sueldo(**sueldo_dict)
         db.add(db_sueldo)
         db.commit()
         db.refresh(db_sueldo)
         return db_sueldo
 
-def obtener_sueldo_mes(db: Session, mes: int, anio: int):
+def obtener_sueldo_mes(db: Session, mes: int, anio: int, user_id: int):
     return db.query(models.Sueldo).filter(
         models.Sueldo.mes == mes,
-        models.Sueldo.anio == anio
+        models.Sueldo.anio == anio,
+        models.Sueldo.user_id == user_id  # ← NUEVO: filtrar por usuario
     ).first()
 
-def obtener_sueldos(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Sueldo).order_by(models.Sueldo.anio.desc(), models.Sueldo.mes.desc()).offset(skip).limit(limit).all()
+def obtener_sueldos(db: Session, user_id: int, skip: int = 0, limit: int = 100):
+    return db.query(models.Sueldo).filter(models.Sueldo.user_id == user_id).order_by(models.Sueldo.anio.desc(), models.Sueldo.mes.desc()).offset(skip).limit(limit).all()
+
+# CRUD para Usuarios
+def crear_usuario(db: Session, user: schemas.UserCreate):
+    """Crear un nuevo usuario con contraseña hasheada"""
+    from .auth import get_password_hash
+    
+    # Hashear la contraseña antes de guardarla
+    hashed_password = get_password_hash(user.password)
+    
+    db_user = models.Usuario(
+        email=user.email,
+        hashed_password=hashed_password
+    )
+    
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+def obtener_usuario_por_email(db: Session, email: str):
+    """Buscar un usuario por su email"""
+    return db.query(models.Usuario).filter(models.Usuario.email == email).first()
+
+def obtener_usuario_por_id(db: Session, user_id: int):
+    """Buscar un usuario por su ID"""
+    return db.query(models.Usuario).filter(models.Usuario.id == user_id).first()

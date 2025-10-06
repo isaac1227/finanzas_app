@@ -1,6 +1,7 @@
 import { React, useState, useEffect } from "react";
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
+import { authService } from "../services/authService";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -18,7 +19,7 @@ const Graficos = ({ mesGlobal, añoGlobal, setMesGlobal, hideSelector = false })
         const cargarDatos = async () => {
             setLoading(true);
             try {
-                const response = await fetch(`http://127.0.0.1:8001/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
+                const response = await authService.apiCall(`/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
                 if (response.ok) {
                     const data = await response.json();
 
