@@ -1,38 +1,57 @@
-# 💰 Finanzas App - Gestión Personal de Finanzas
+# 💰 Finanzas App - Gestión Personal de Finanzas con Autenticación JWT
 
-Un proyecto personal desarrollado para **practicar y demostrar competencias** en desarrollo full-stack moderno con **FastAPI**, **React** y **PostgreSQL**.
+Un proyecto personal **full-stack** desarrollado para **practicar y demostrar competencias** en desarrollo web moderno con **autenticación JWT**, **FastAPI**, **React** y **PostgreSQL**.
 
 ## 🎯 Objetivo del Proyecto
 
-Este proyecto fue creado como **ejercicio de aprendizaje** para practicar:
-- Desarrollo de APIs REST con FastAPI
-- Frontend moderno con React y Bootstrap
-- Gestión de bases de datos con PostgreSQL y SQLAlchemy
-- Arquitectura full-stack completa
-- Documentación profesional de proyectos
+Este proyecto fue creado como **ejercicio de aprendizaje avanzado** para practicar:
+- 🔐 **Autenticación JWT completa** (registro, login, protección de rutas)
+- 🚀 Desarrollo de APIs REST seguras con FastAPI
+- ⚛️ Frontend moderno con React y gestión de estado
+- 🗄️ Gestión de bases de datos con PostgreSQL y SQLAlchemy
+- 🏗️ Arquitectura full-stack con separación de usuarios
+- 📚 Documentación profesional de proyectos
 
 ## 🛠️ Stack Tecnológico
 
 ### **Backend**
 - **FastAPI** - Framework web moderno y rápido para Python
 - **SQLAlchemy** - ORM para manejo de base de datos
+- **JWT (JSON Web Tokens)** - Autenticación stateless y segura
+- **Passlib** - Hasheo seguro de contraseñas (pbkdf2_sha256)
+- **Python-Jose** - Manejo de tokens JWT
 - **Pydantic** - Validación de datos y serialización
 - **PostgreSQL** - Base de datos relacional
 - **Python 3.11+** - Lenguaje de programación
 
 ### **Frontend**
 - **React 18** - Biblioteca para interfaces de usuario
+- **JWT Authentication** - Sistema completo de autenticación
+- **LocalStorage** - Persistencia segura de tokens
 - **Bootstrap 5** - Framework CSS para diseño responsivo
+- **React Hot Toast** - Notificaciones UX
+- **Chart.js** - Visualización de datos
 - **JavaScript ES6+** - Lenguaje de programación frontend
 
-### **Desarrollo**
+### **Desarrollo & Deploy**
+- **Docker & Docker Compose** - Containerización completa
 - **Git** - Control de versiones
 - **uvicorn** - Servidor ASGI para desarrollo
 - **npm** - Gestión de dependencias frontend
 
 ## ✨ Funcionalidades
 
-### **🏠 Análisis Financiero (Inicio)**
+### **🔐 Sistema de Autenticación JWT**
+- **Registro de usuarios** con validación de email y contraseña
+- **Login seguro** con JWT tokens (30 min de expiración)
+- **Protección de rutas** automática en frontend y backend
+- **Separación completa de usuarios** - cada uno ve solo sus datos
+- **Logout automático** cuando el token expira
+- **Interfaz moderna** con diseño UX/UI profesional
+- **Hasheo seguro** de contraseñas con pbkdf2_sha256
+
+### **🏠 Dashboard Personalizado (Inicio)**
+- **Datos únicos por usuario** - completa privacidad
 - Visualización del saldo mensual (no acumulativo)
 - Desglose por: Saldo Total, Sueldos, Transacciones
 - Selector de mes maestro que sincroniza toda la aplicación
@@ -40,7 +59,7 @@ Este proyecto fue creado como **ejercicio de aprendizaje** para practicar:
 - **Gráficos integrados** con Chart.js mostrando análisis visual
 
 ### **📊 Análisis Visual con Gráficos**
-- **Gráfico de barras profesional** (Gastos vs Ingresos)
+- **Gráfico de barras profesional** (Gastos vs Ingresos por usuario)
 - **Panel de métricas** con 4 indicadores clave:
   - 💸 Total de Gastos del mes
   - 💰 Total de Ingresos del mes  
@@ -61,6 +80,44 @@ Este proyecto fue creado como **ejercicio de aprendizaje** para practicar:
 - Crear o actualizar sueldo mensual
 - Visualización histórica por meses
 
+## 🔐 **Sistema JWT Implementado**
+
+### **Flujo de Autenticación Completo**
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│    Frontend     │    │    Backend      │    │   Base Datos    │
+│   (React)       │    │   (FastAPI)     │    │  (PostgreSQL)   │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         │ 1. POST /register     │                       │
+         ├──────────────────────►│ 2. Hash password      │
+         │                       ├──────────────────────►│ 3. Save user
+         │ 4. 201 Created        │◄──────────────────────┤
+         │◄──────────────────────┤                       │
+         │                       │                       │
+         │ 5. POST /login        │                       │
+         ├──────────────────────►│ 6. Verify password    │
+         │                       ├──────────────────────►│ 7. Get user
+         │ 8. JWT Token          │◄──────────────────────┤
+         │◄──────────────────────┤                       │
+         │                       │                       │
+         │ 9. API + JWT Header   │                       │
+         ├──────────────────────►│ 10. Verify JWT        │
+         │                       ├──────────────────────►│ 11. User data
+         │ 12. Protected data    │◄──────────────────────┤
+         │◄──────────────────────┤                       │
+```
+
+### **Características de Seguridad**
+
+- 🔒 **Contraseñas hasheadas** con `pbkdf2_sha256` (compatible Docker)
+- 🎫 **JWT Tokens** con expiración de 30 minutos
+- 🛡️ **Middleware de autenticación** en todos los endpoints protegidos
+- 👤 **Separación completa de usuarios** - aislamiento total de datos
+- 🚪 **Logout automático** cuando el token expira o es inválido
+- 📱 **Stateless** - escalable y compatible con múltiples dispositivos
+
 ## 🏗️ Arquitectura del Proyecto
 
 ```
@@ -68,17 +125,21 @@ finanzas-app/
 ├── backend/
 │   ├── app/
 │   │   ├── __init__.py
-│   │   ├── main.py          # Endpoints de la API
-│   │   ├── models.py        # Modelos de SQLAlchemy
-│   │   ├── schemas.py       # Esquemas de Pydantic
-│   │   ├── crud.py          # Operaciones de base de datos
+│   │   ├── main.py          # Endpoints de la API + JWT Protection
+│   │   ├── auth.py          # ⭐ Sistema JWT (tokens, passwords)
+│   │   ├── models.py        # Modelos + Usuario con relaciones
+│   │   ├── schemas.py       # Esquemas + Auth schemas
+│   │   ├── crud.py          # CRUD + Filtrado por usuario
 │   │   └── database.py      # Configuración de BD
-│   └── requirements.txt
+│   └── requirements.txt     # + JWT dependencies
 ├── finanzas-frontend/
 │   ├── src/
+│   │   ├── services/
+│   │   │   └── authService.js   # ⭐ Manejo automático JWT
 │   │   ├── components/
-│   │   │   ├── Inicio.js         # Análisis Financiero principal con gráficos
-│   │   │   ├── Transacciones.js  # Gestión de transacciones
+│   │   │   ├── Login.js          # ⭐ Interfaz auth moderna
+│   │   │   ├── Inicio.js         # Dashboard personalizado
+│   │   │   ├── Transacciones.js  # Gestión con JWT
 │   │   │   ├── Graficos.js       # Componente de visualización
 │   │   │   └── Navbar.js         # Navegación
 │   │   ├── App.js           # Estado compartido y rutas
@@ -91,7 +152,15 @@ finanzas-app/
 
 ## 🚀 Instalación y Configuración
 
-### **🐳 Opción 1: Con Docker (RECOMENDADO)**
+### **� Primer Uso - Sistema de Autenticación**
+
+1. **Accede a la aplicación**: http://localhost:3001
+2. **Crea tu primera cuenta** con el formulario de registro
+3. **Automáticamente serás logueado** y tendrás acceso completo
+4. **Tus datos son privados** - solo tú puedes ver tus finanzas
+5. **El token expira en 30 minutos** - se renovará automáticamente
+
+### **�🐳 Opción 1: Con Docker (RECOMENDADO)**
 
 #### **Prerrequisitos**
 ```bash
@@ -291,22 +360,38 @@ SELECT current_user;
 
 ## 🔌 API Endpoints
 
-### **Transacciones**
-- `GET /transacciones` - Listar todas las transacciones  
-- `GET /transacciones?mes=9&anio=2025` - Filtrar por mes
-- `POST /transacciones` - Crear nueva transacción
-- `PUT /transacciones/{id}` - Actualizar transacción
-- `DELETE /transacciones/{id}` - Eliminar transacción
+### **🔐 Autenticación (Públicos)**
+- `POST /register` - Registro de nuevos usuarios
+- `POST /login` - Login con email/contraseña → retorna JWT
+- `GET /me` - Información del usuario actual (requiere JWT)
 
-### **Sueldos**
-- `GET /sueldos` - Listar todos los sueldos
-- `GET /sueldos/{anio}/{mes}` - Obtener sueldo específico
-- `POST /sueldos` - Crear o actualizar sueldo
+### **📊 Transacciones (Protegidos con JWT)**
+- `GET /transacciones` - Listar transacciones del usuario actual
+- `GET /transacciones?mes=9&anio=2025` - Filtrar por mes (usuario actual)
+- `POST /transacciones` - Crear nueva transacción (usuario actual)
+- `PUT /transacciones/{id}` - Actualizar transacción (solo si es tuya)
+- `DELETE /transacciones/{id}` - Eliminar transacción (solo si es tuya)
 
-### **Inicio**
-- `GET /saldo-total?mes=9&anio=2025` - Saldo completo del mes
+### **💰 Sueldos (Protegidos con JWT)**
+- `GET /sueldos` - Listar sueldos del usuario actual
+- `GET /sueldos/{anio}/{mes}` - Obtener sueldo específico (usuario actual)
+- `POST /sueldos` - Crear o actualizar sueldo (usuario actual)
+
+### **📈 Dashboard (Protegido con JWT)**
+- `GET /saldo-total?mes=9&anio=2025` - Saldo completo del mes (usuario actual)
+
+> 🔒 **Todos los endpoints protegidos requieren header**: `Authorization: Bearer <jwt_token>`
 
 ## 🎓 Conocimientos Aplicados
+
+### **🔐 Autenticación & Seguridad**
+- ✅ **JWT (JSON Web Tokens)** - Implementación completa stateless
+- ✅ **Password Hashing** - pbkdf2_sha256 con salt automático  
+- ✅ **Bearer Authentication** - Headers HTTP automáticos
+- ✅ **Route Protection** - Middleware de autenticación
+- ✅ **User Separation** - Aislamiento completo de datos por usuario
+- ✅ **Token Management** - Expiración, renovación automática
+- ✅ **Security Headers** - CORS, Content-Type, Authorization
 
 ### **Backend Development**
 - ✅ **REST API Design** - Endpoints RESTful con FastAPI
@@ -332,19 +417,29 @@ SELECT current_user;
 
 ## 📈 Métricas del Proyecto
 
-- **📁 Archivos de código**: ~15 archivos principales
-- **📝 Líneas de código**: ~1,500 líneas (Python + JavaScript)
-- **🔌 Endpoints API**: 8 endpoints RESTful
-- **🎨 Componentes React**: 2 componentes principales
-- **🗄️ Tablas de BD**: 2 tablas con relaciones
-- **⚡ Funcionalidades**: 6 funcionalidades principales
+- **📁 Archivos de código**: ~20 archivos principales (+33% con JWT)
+- **📝 Líneas de código**: ~2,000 líneas (Python + JavaScript) (+33% con auth)
+- **🔌 Endpoints API**: 11 endpoints (8 protegidos + 3 auth)
+- **🎨 Componentes React**: 4 componentes principales (+Login, AuthService)
+- **🗄️ Tablas de BD**: 3 tablas con relaciones (Usuarios + Transacciones + Sueldos)
+- **⚡ Funcionalidades**: 8 funcionalidades (+Registro, Login, JWT)
+- **🔐 Seguridad**: Autenticación completa, separación de usuarios
+- **🐳 Docker**: Aplicación completamente containerizada
 
 ## 🌐 Acceso
 
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8000
-- **Documentación API**: http://localhost:8000/docs (Swagger UI automático)
-- **Base de datos**: localhost:5432/finanzas_db
+### **URLs de la Aplicación (Docker)**
+- **🔐 Frontend con Login**: http://localhost:3001
+- **📚 API Backend**: http://localhost:8001
+- **📖 Documentación API**: http://localhost:8001/docs (Swagger UI con auth)
+- **🗄️ Base de datos**: localhost:5433/finanzas_db
+- **🔧 Adminer DB**: http://localhost:8080 (usuario: finanzas, pass: finanzas)
+
+### **URLs de Desarrollo (Local)**
+- **Frontend**: http://localhost:3000 (si usas `npm start`)
+- **Backend**: http://localhost:8000 (si usas `uvicorn`)
+
+> 💡 **Recomendación**: Usa Docker para tener el entorno exacto con autenticación JWT
 
 ## 🧪 Testing y Calidad de Código
 
