@@ -91,13 +91,28 @@ jobs:
 
       - name: "🏗️ Build and start services"
         run: |
-          docker compose up -d --build
+          # Crear archivo de entorno para docker-compose
+          cat > .env << 'EOF'
+          POSTGRES_DB=test_finanzas_db
+          POSTGRES_USER=test_user
+          POSTGRES_PASSWORD=test_password
+          DATABASE_URL=postgresql://test_user:test_password@db:5432/test_finanzas_db
+          EOF
+          # Override para que backend no falle por healthcheck de db en CI
+          cat > docker-compose.ci.override.yml << 'YAML'
+          services:
+            backend:
+              depends_on:
+                db:
+                  condition: service_started
+          YAML
+          docker compose -f docker-compose.yml -f docker-compose.ci.override.yml --env-file .env up -d --build
 
       - name: "⏳ Wait for services"
         run: |
           echo "Waiting for services to be ready..."
           for i in {1..30}; do
-            if curl -f -s http://localhost:8000/docs > /dev/null; then
+            if curl -f -s http://localhost:8001/docs > /dev/null; then
               echo "✅ Backend is ready"
               break
             fi
@@ -108,7 +123,7 @@ jobs:
       - name: "🧪 Test API endpoints"
         run: |
           # Test básico de la documentación
-          curl -f http://localhost:8000/docs
+          curl -f http://localhost:8001/docs
           echo "✅ API documentation is accessible"
 
       - name: "🧹 Cleanup"
