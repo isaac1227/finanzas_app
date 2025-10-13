@@ -13,7 +13,7 @@ function App() {
   const mesActual = fechaActual.getMonth() + 1;
   const añoActual = fechaActual.getFullYear();
   const [mesGlobal, setMesGlobal] = useState(mesActual);
-  const [añoGlobal, setAñoGlobal] = useState(añoActual);
+  const [añoGlobal] = useState(añoActual);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {

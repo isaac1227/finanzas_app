@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { authService } from "../services/authService";
 
 const Navbar = ({ onLogout }) => (
   <nav className="navbar navbar-expand-lg navbar-light bg-light p-3 mb-4">
