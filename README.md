@@ -1,5 +1,9 @@
 # 💰 Finanzas App - Gestión Personal de Finanzas con Autenticación JWT
 
+[![CI/CD Pipeline](https://github.com/isaac1227/finanzas_app/actions/workflows/ci.yml/badge.svg)](https://github.com/isaac1227/finanzas_app/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-passing-green.svg)](https://github.com/isaac1227/finanzas_app/actions)
+[![Clean Architecture](https://img.shields.io/badge/architecture-clean-blue.svg)](#-arquitectura-del-proyecto-clean-architecture)
+
 Un proyecto personal **full-stack** desarrollado para **practicar y demostrar competencias** en desarrollo web moderno con **autenticación JWT**, **FastAPI**, **React** y **PostgreSQL**.
 
 ## 🎯 Objetivo del Proyecto

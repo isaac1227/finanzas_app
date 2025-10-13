@@ -1,0 +1,135 @@
+# 🚀 CI/CD Simple para Finanzas App
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # 🧪 Tests del Backend
+  backend-tests:
+    name: "🐍 Backend Tests"
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: test_finanzas_db
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    
+    steps:
+      - name: "📥 Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "🐍 Setup Python 3.12"
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: "📦 Install dependencies"
+        run: |
+          cd backend
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest-cov
+
+      - name: "🧪 Run tests"
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_finanzas_db
+          SECRET_KEY: test-secret-key-for-ci
+        run: |
+          cd backend
+          pytest -v
+
+  # ⚛️ Tests del Frontend  
+  frontend-tests:
+    name: "⚛️ Frontend Tests"
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: "📥 Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "🟢 Setup Node.js 18"
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: finanzas-frontend/package-lock.json
+
+      - name: "📦 Install dependencies"
+        run: |
+          cd finanzas-frontend
+          npm ci
+
+      - name: "🧪 Run tests"
+        run: |
+          cd finanzas-frontend
+          npm run test:ci
+
+      - name: "🏗️ Build production"
+        run: |
+          cd finanzas-frontend
+          npm run build
+
+  # 🐳 Tests de integración (usa docker-compose.yml que ya tienes)
+  integration-tests:
+    name: "🐳 Integration Tests"
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests]
+    
+    steps:
+      - name: "📥 Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "🏗️ Build and start services"
+        run: |
+          docker compose up -d --build
+
+      - name: "⏳ Wait for services"
+        run: |
+          echo "Waiting for services to be ready..."
+          for i in {1..30}; do
+            if curl -f -s http://localhost:8000/docs > /dev/null; then
+              echo "✅ Backend is ready"
+              break
+            fi
+            echo "⏳ Waiting for backend... ($i/30)"
+            sleep 10
+          done
+
+      - name: "🧪 Test API endpoints"
+        run: |
+          # Test básico de la documentación
+          curl -f http://localhost:8000/docs
+          echo "✅ API documentation is accessible"
+
+      - name: "🧹 Cleanup"
+        if: always()
+        run: docker compose down -v
+
+  # 🚀 Deploy (opcional, solo en main)
+  deploy:
+    name: "🚀 Deploy"
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests, integration-tests]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+      - name: "📥 Checkout code"
+        uses: actions/checkout@v4
+      
+      - name: "🚀 Deploy placeholder"
+        run: |
+          echo "🚀 Ready to deploy!"
+          echo "💡 Aquí puedes agregar tu estrategia de deploy:"
+          echo "   - Vercel para el frontend"
+          echo "   - Railway/Heroku para el backend"
+          echo "   - Docker Registry para containers"
