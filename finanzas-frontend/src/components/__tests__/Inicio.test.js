@@ -1,4 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import toast from 'react-hot-toast';
 import { BrowserRouter } from 'react-router-dom';
 import Inicio from '../Inicio';
 
@@ -11,6 +12,16 @@ jest.mock('../Graficos', () => {
     return <div data-testid="graficos-component">Gráficos Mock</div>;
   };
 });
+
+// 🎯 Mock de react-hot-toast para capturar llamadas a toast.error/success
+jest.mock('react-hot-toast', () => ({
+  __esModule: true,
+  default: {
+    error: jest.fn(),
+    success: jest.fn(),
+  },
+  Toaster: () => null,
+}));
 
 // 🔧 Helper: Envolver con Router
 const InicioWithRouter = ({ mesGlobal = 10, setMesGlobal = jest.fn(), añoGlobal = 2025 }) => (
@@ -28,6 +39,9 @@ describe('Inicio Component - Tests Complejos', () => {
     // 🧹 Limpiar mocks antes de cada test
     jest.clearAllMocks();
     fetch.mockClear();
+    // Limpiar mocks de toast
+    toast.error.mockClear();
+    toast.success.mockClear();
   });
 
   // 🧪 TEST 1: Loading State
@@ -82,8 +96,12 @@ describe('Inicio Component - Tests Complejos', () => {
     
     // Verificar que se hicieron las llamadas correctas
     expect(fetch).toHaveBeenCalledTimes(2);
-    expect(fetch).toHaveBeenCalledWith('http://127.0.0.1:8001/saldo-total?mes=10&anio=2025');
-    expect(fetch).toHaveBeenCalledWith('http://127.0.0.1:8001/sueldos/2025/10');
+    expect(fetch).toHaveBeenCalledWith('http://localhost:8001/saldo-total?mes=10&anio=2025', expect.objectContaining({
+      headers: expect.any(Object)
+    }));
+    expect(fetch).toHaveBeenCalledWith('http://localhost:8001/sueldos/2025/10', expect.objectContaining({
+      headers: expect.any(Object)
+    }));
   });
 
   // 🧪 TEST 3: Manejo de errores de API
@@ -179,7 +197,7 @@ describe('Inicio Component - Tests Complejos', () => {
     });
 
     // Verificar llamada a API de guardado
-    expect(fetch).toHaveBeenCalledWith('http://127.0.0.1:8001/sueldos', {
+    expect(fetch).toHaveBeenCalledWith('http://localhost:8001/sueldos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -192,13 +210,14 @@ describe('Inicio Component - Tests Complejos', () => {
 
   // 🧪 TEST 6: Validación de entrada inválida
   test('valida entrada de sueldo inválida', async () => {
-    // Mock de window.alert
-    window.alert = jest.fn();
-    
-    fetch.mockResolvedValue({
+    // No usamos alert, se usa toast.error
+    // Primera llamada: saldo-total OK
+    fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({ saldo_total: 0, saldo_transacciones: 0, saldo_sueldo: 0 })
     });
+    // Segunda llamada: sueldos NO encontrado (fuerza vista sin sueldo)
+    fetch.mockResolvedValueOnce({ ok: false });
 
     render(<InicioWithRouter />);
 
@@ -215,6 +234,19 @@ describe('Inicio Component - Tests Complejos', () => {
     fireEvent.click(guardarBtn);
 
     // Verificar validación
-    expect(window.alert).toHaveBeenCalledWith('Por favor ingresa una cantidad válida');
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('Por favor ingresa una cantidad válida');
+    });
+    
+    // Intentar con valor negativo
+    const inputSueldo = screen.getByPlaceholderText('Ingresa tu sueldo');
+    fireEvent.change(inputSueldo, { target: { value: '-500' } });
+    fireEvent.click(guardarBtn);
+
+    // Verificar validación
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledTimes(2);
+      expect(toast.error).toHaveBeenLastCalledWith('Por favor ingresa una cantidad válida');
+    });
   });
 });

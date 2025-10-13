@@ -3,8 +3,7 @@ import App from './App';
 
 test('renderiza correctamente la aplicación', () => {
   render(<App />);
-  // Verificar que la aplicación se renderiza con el navbar y contenido inicial
-  expect(screen.getByRole('heading', { name: 'Inicio' })).toBeInTheDocument();
-  expect(screen.getByText('Transacciones')).toBeInTheDocument();
-  expect(screen.getByText('Cargando...')).toBeInTheDocument();
+  // Verificar que la aplicación se renderiza con el login de usuario
+  // Usamos una expresión regular para permitir variaciones como emojis (p. ej., "🔑 Iniciar sesión")
+  expect(screen.getByRole('heading', { name: /iniciar sesión/i })).toBeInTheDocument();
 });

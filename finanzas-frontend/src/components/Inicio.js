@@ -44,7 +44,8 @@ const Inicio = ({ mesGlobal, setMesGlobal, añoGlobal }) => {
         if (response.ok) {
           const sueldo = await response.json();
           setSueldoActual(sueldo);
-          setNuevoSueldo(sueldo?.cantidad.toString() || "");
+          // Evitar errores cuando cantidad no existe
+          setNuevoSueldo(sueldo?.cantidad?.toString() || "");
         } else {
           setSueldoActual(null);
           setNuevoSueldo("");

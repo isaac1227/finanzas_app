@@ -170,7 +170,7 @@ describe('Transacciones Component', () => {
 
     // Verificar llamada a API (el componente puede incluir fecha)
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalledWith('http://127.0.0.1:8001/transacciones', expect.objectContaining({
+      expect(fetch).toHaveBeenCalledWith('http://localhost:8001/transacciones', expect.objectContaining({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: expect.stringContaining('"tipo":"gasto"')
@@ -230,7 +230,7 @@ describe('Transacciones Component', () => {
 
     // Verificar llamada PUT (el componente incluye fecha del formulario)
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalledWith('http://127.0.0.1:8001/transacciones/1', expect.objectContaining({
+      expect(fetch).toHaveBeenCalledWith('http://localhost:8001/transacciones/1', expect.objectContaining({
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: expect.stringContaining('"cantidad":75')
@@ -281,9 +281,10 @@ describe('Transacciones Component', () => {
 
     // Verificar llamada DELETE
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalledWith('http://127.0.0.1:8001/transacciones/1', {
-        method: 'DELETE'
-      });
+      expect(fetch).toHaveBeenCalledWith('http://localhost:8001/transacciones/1', expect.objectContaining({
+        method: 'DELETE',
+        headers: expect.any(Object),
+      }));
     });
 
     mockConfirm.mockRestore();
