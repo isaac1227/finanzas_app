@@ -70,7 +70,7 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
 
       // Solo añadir fecha si se especificó
       if (nuevaTransaccion.fecha) {
-        transaccionData.fecha = new Date(nuevaTransaccion.fecha).toISOString();
+        transaccionData.fecha = nuevaTransaccion.fecha;  // Enviar fecha en formato YYYY-MM-DD
       }
 
       const res = await authService.apiCall(`/transacciones`, {
@@ -139,7 +139,7 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
 
       // Solo añadir fecha si se especificó
       if (nuevaTransaccion.fecha) {
-        transaccionData.fecha = new Date(nuevaTransaccion.fecha).toISOString();
+        transaccionData.fecha = nuevaTransaccion.fecha;  // Enviar fecha en formato YYYY-MM-DD
       }
 
       const res = await authService.apiCall(

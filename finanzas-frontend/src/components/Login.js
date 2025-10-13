@@ -3,8 +3,8 @@ import { authService } from '../services/authService';
 import toast from 'react-hot-toast';
 
 const Login = ({ onLoginSuccess }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('usuario@ejemplo.com');
+  const [password, setPassword] = useState('mipassword123');
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
 

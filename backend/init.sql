@@ -7,6 +7,15 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- Verificar que las tablas se crean correctamente
 -- (Las tablas se crean automáticamente por SQLAlchemy/Alembic)
 
+-- Crear tabla usuarios
+CREATE TABLE IF NOT EXISTS usuarios (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    hashed_password VARCHAR(255) NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
 -- Crear tabla sueldos
 CREATE TABLE IF NOT EXISTS sueldos (
     id SERIAL PRIMARY KEY,
@@ -14,7 +23,9 @@ CREATE TABLE IF NOT EXISTS sueldos (
     mes INT NOT NULL,
     anio INT NOT NULL,
     fecha TIMESTAMP DEFAULT NOW() NOT NULL,
-    CONSTRAINT uq_mes_anio UNIQUE (mes, anio)
+    user_id INTEGER NOT NULL,
+    CONSTRAINT fk_sueldos_user FOREIGN KEY (user_id) REFERENCES usuarios(id),
+    CONSTRAINT uq_mes_anio_user UNIQUE (mes, anio, user_id)
 );
 
 -- Crear tabla transacciones
@@ -23,7 +34,9 @@ CREATE TABLE IF NOT EXISTS transacciones (
     tipo VARCHAR(50) NOT NULL,
     cantidad NUMERIC NOT NULL,
     descripcion TEXT,
-    fecha TIMESTAMP NOT NULL
+    fecha TIMESTAMP NOT NULL,
+    user_id INTEGER NOT NULL,
+    CONSTRAINT fk_transacciones_user FOREIGN KEY (user_id) REFERENCES usuarios(id)
 );
 
 -- Insertar datos iniciales
@@ -41,4 +54,6 @@ INSERT INTO transacciones (tipo, cantidad, descripcion, fecha) VALUES
 -- Crear índices para optimización
 CREATE INDEX IF NOT EXISTS idx_transacciones_fecha ON transacciones(fecha);
 CREATE INDEX IF NOT EXISTS idx_transacciones_tipo ON transacciones(tipo);
+CREATE INDEX IF NOT EXISTS idx_transacciones_user ON transacciones(user_id);
 CREATE INDEX IF NOT EXISTS idx_sueldos_mes_anio ON sueldos(mes, anio);
+CREATE INDEX IF NOT EXISTS idx_sueldos_user ON sueldos(user_id);

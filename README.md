@@ -118,37 +118,39 @@ Este proyecto fue creado como **ejercicio de aprendizaje avanzado** para practic
 - 🚪 **Logout automático** cuando el token expira o es inválido
 - 📱 **Stateless** - escalable y compatible con múltiples dispositivos
 
-## 🏗️ Arquitectura del Proyecto
+## 🏗️ Arquitectura del Proyecto (Clean Architecture)
 
 ```
 finanzas-app/
 ├── backend/
 │   ├── app/
-│   │   ├── __init__.py
-│   │   ├── main.py          # Endpoints de la API + JWT Protection
-│   │   ├── auth.py          # ⭐ Sistema JWT (tokens, passwords)
-│   │   ├── models.py        # Modelos + Usuario con relaciones
-│   │   ├── schemas.py       # Esquemas + Auth schemas
-│   │   ├── crud.py          # CRUD + Filtrado por usuario
-│   │   └── database.py      # Configuración de BD
-│   └── requirements.txt     # + JWT dependencies
+│   │   ├── api/
+│   │   │   ├── endpoints/       # Controladores (Auth, Transacciones, Sueldos)
+│   │   │   └── dependencies/    # Inyección de dependencias (Use Cases, Repos)
+│   │   ├── application/
+│   │   │   ├── dtos/            # DTOs de entrada/salida
+│   │   │   └── use_cases/       # Casos de uso por agregado
+│   │   ├── domain/
+│   │   │   ├── entities/        # Entidades de dominio
+│   │   │   └── repositories/    # Interfaces de repositorios
+│   │   ├── infrastructure/
+│   │   │   ├── database/        # Repositorios SQLAlchemy, modelos ORM
+│   │   │   └── config/          # Sesiones de DB, settings
+│   │   ├── auth.py              # Servicios de autenticación (hash/JWT)
+│   │   └── main.py              # FastAPI app, middlewares y routers
+│   ├── requirements.txt
+│   └── tests/                   # Tests unitarios e integración (pytest)
 ├── finanzas-frontend/
-│   ├── src/
-│   │   ├── services/
-│   │   │   └── authService.js   # ⭐ Manejo automático JWT
-│   │   ├── components/
-│   │   │   ├── Login.js          # ⭐ Interfaz auth moderna
-│   │   │   ├── Inicio.js         # Dashboard personalizado
-│   │   │   ├── Transacciones.js  # Gestión con JWT
-│   │   │   ├── Graficos.js       # Componente de visualización
-│   │   │   └── Navbar.js         # Navegación
-│   │   ├── App.js           # Estado compartido y rutas
-│   │   └── index.js
-│   └── package.json
+│   └── src/                     # React app (authService, componentes, etc.)
+├── docker-compose.yml
 ├── README.md
-├── SETUP.md
-└── PORTFOLIO.md
+└── SETUP.md
 ```
+
+Ventajas:
+- Separación clara de responsabilidades (API ↔ Use Cases ↔ Dominio ↔ Infraestructura)
+- Testeabilidad mejorada (mocks/stubs a nivel de repositorios)
+- Sostenibilidad para crecimiento (nuevos casos de uso/endpoints sin acoplar capas)
 
 ## 🚀 Instalación y Configuración
 
@@ -183,6 +185,12 @@ docker-compose up -d
 # - Backend API: http://localhost:8001  
 # - Docs API: http://localhost:8001/docs
 # - Adminer DB: http://localhost:8080 (dev)
+```
+
+O bien, usando Docker (recomendado):
+
+```bash
+docker compose exec backend pytest -q
 ```
 
 #### **Comandos Docker útiles**
@@ -361,9 +369,10 @@ SELECT current_user;
 ## 🔌 API Endpoints
 
 ### **🔐 Autenticación (Públicos)**
-- `POST /register` - Registro de nuevos usuarios
-- `POST /login` - Login con email/contraseña → retorna JWT
-- `GET /me` - Información del usuario actual (requiere JWT)
+- `POST /auth/register` - Registro de nuevos usuarios
+- `POST /auth/login` - Login con email/contraseña → retorna JWT (JSON)
+- `POST /auth/token` - Login estilo OAuth2PasswordRequestForm (docs)
+- `GET /auth/me` - Información del usuario actual (requiere JWT)
 
 ### **📊 Transacciones (Protegidos con JWT)**
 - `GET /transacciones` - Listar transacciones del usuario actual

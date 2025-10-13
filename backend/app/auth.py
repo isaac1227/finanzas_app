@@ -49,12 +49,14 @@ def verify_token(token: str) -> dict:
     try:
         # Decodificar el token
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
+        
+        # CORREGIDO: Buscar "email" en lugar de "sub"
+        email: str = payload.get("email")
         
         if email is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token inválido",
+                detail="Token inválido - email no encontrado",
                 headers={"WWW-Authenticate": "Bearer"},
             )
         

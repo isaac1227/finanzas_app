@@ -1,5 +1,5 @@
 // AuthService - Manejo de autenticación JWT
-const API_URL = 'http://localhost:8001';
+const API_URL = 'http://localhost:8001/auth';
 
 export const authService = {
   // 🔐 Login
@@ -8,7 +8,7 @@ export const authService = {
     formData.append('username', email);
     formData.append('password', password);
     
-    const response = await fetch(`${API_URL}/login`, {
+    const response = await fetch(`${API_URL}/token`, {
       method: 'POST',
       body: formData,
     });
@@ -63,7 +63,9 @@ export const authService = {
       },
     };
     
-    const response = await fetch(`${API_URL}${endpoint}`, config);
+    // Para apiCall, usar la URL base sin /auth
+    const baseUrl = 'http://localhost:8001';
+    const response = await fetch(`${baseUrl}${endpoint}`, config);
     
     if (response.status === 401) {
       this.logout();

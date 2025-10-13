@@ -1,0 +1,1 @@
+# Pure business entities without framework dependencies
