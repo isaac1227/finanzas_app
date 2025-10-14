@@ -3,7 +3,7 @@ import { useTheme } from "../contexts/ThemeContext";
 import { useState } from "react";
 
 const Navbar = ({ onLogout }) => {
-  const { theme, toggleTheme, isDark } = useTheme();
+  const { toggleTheme, isDark } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => {
