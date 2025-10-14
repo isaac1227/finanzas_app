@@ -14,7 +14,14 @@ export const ThemeProvider = ({ children }) => {
       setTheme(savedTheme);
     } else {
       // Detectar preferencia del sistema
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      let prefersDark = false;
+      try {
+        if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+          prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+      } catch (e) {
+        // En entorno de test o si falla matchMedia, se mantiene false (light)
+      }
       setTheme(prefersDark ? 'dark' : 'light');
     }
   }, []);

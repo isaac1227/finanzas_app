@@ -1,9 +1,12 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import Graficos from '../Graficos';
+import { ThemeProvider } from '../../contexts/ThemeContext';
 
 // 🎭 MOCK de fetch
 global.fetch = jest.fn();
+
+// matchMedia mock ya definido globalmente en setupTests.js
 
 // 🎯 MOCK de Chart.js - los componentes de gráficos son complejos de testear
 jest.mock('react-chartjs-2', () => ({
@@ -37,14 +40,16 @@ const GraficosWithRouter = ({
   añoGlobal = 2025, 
   hideSelector = false 
 }) => (
-  <BrowserRouter>
-    <Graficos 
-      mesGlobal={mesGlobal} 
-      setMesGlobal={setMesGlobal} 
-      añoGlobal={añoGlobal}
-      hideSelector={hideSelector}
-    />
-  </BrowserRouter>
+  <ThemeProvider>
+    <BrowserRouter>
+      <Graficos 
+        mesGlobal={mesGlobal} 
+        setMesGlobal={setMesGlobal} 
+        añoGlobal={añoGlobal}
+        hideSelector={hideSelector}
+      />
+    </BrowserRouter>
+  </ThemeProvider>
 );
 
 describe('Graficos Component', () => {
