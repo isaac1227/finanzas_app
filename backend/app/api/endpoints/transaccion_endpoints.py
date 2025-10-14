@@ -134,7 +134,8 @@ def actualizar_transaccion(
             transaccion_id=transaccion_id,
             tipo=request.tipo,
             cantidad=request.cantidad,
-            descripcion=request.descripcion
+            descripcion=request.descripcion,
+            fecha=request.fecha
         )
 
         return TransaccionResponseDTO(

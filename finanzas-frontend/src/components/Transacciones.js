@@ -6,6 +6,11 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
   const [transacciones, setTransacciones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Estados para paginación
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [transaccionesPorPagina] = useState(15);
+  const [totalTransacciones, setTotalTransacciones] = useState(0);
 
   // Estados para añadir y editar
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
@@ -22,15 +27,19 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
   ];
 
-  // Obtener transacciones filtradas por mes
+  // Obtener transacciones filtradas por mes con paginación
   useEffect(() => {
     const fetchTransacciones = async () => {
       try {
         setLoading(true);
-        const res = await authService.apiCall(`/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
-        if (!res.ok) throw new Error("Error al obtener transacciones");
-        const data = await res.json();
-        setTransacciones(data);
+        // Obtener transacciones del mes seleccionado
+        const resAll = await authService.apiCall(`/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
+        if (!resAll.ok) throw new Error("Error al obtener transacciones");
+        const allData = await resAll.json();
+        
+  const ordenadas = [...allData].sort((a,b) => new Date(b.fecha) - new Date(a.fecha) || b.id - a.id);
+  setTotalTransacciones(ordenadas.length);
+  setTransacciones(ordenadas);
       } catch (err) {
         setError(err.message);
         toast.error("Error al cargar las transacciones");
@@ -39,6 +48,11 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
       }
     };
     fetchTransacciones();
+  }, [mesGlobal, añoGlobal]); // Recargar cuando cambien mes/año
+
+  // Resetear página al cambiar mes
+  useEffect(() => {
+    setPaginaActual(1);
   }, [mesGlobal, añoGlobal]);
 
   // Actualizar el estado de nuevaTransaccion al cambiar el mes o año global
@@ -51,12 +65,10 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
 
   // Crear nueva transacción
   const guardarTransaccion = async () => {
-    // Validación cliente: cantidad requerida y mayor que 0
     if (!nuevaTransaccion.cantidad || Number(nuevaTransaccion.cantidad) <= 0) {
       toast.error('Introduce una cantidad válida para la transacción');
       return;
     }
-    // Validación cliente: descripción requerida
     if (!nuevaTransaccion.descripcion || nuevaTransaccion.descripcion.trim().length === 0) {
       toast.error('Introduce una descripción para la transacción');
       return;
@@ -79,10 +91,30 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
       });
       if (!res.ok) throw new Error("Error al guardar transacción");
       
-      // Recargar transacciones del mes seleccionado
+      // Determinar mes/año de la nueva fecha si se cambió
+      if (transaccionData.fecha) {
+        const [newYear, newMonth] = transaccionData.fecha.split('-').map(Number);
+        // Si la fecha nueva es de otro mes, cambiamos el mesGlobal para que el usuario vea la transacción movida
+        if (newYear === añoGlobal && newMonth !== mesGlobal) {
+          setMesGlobal(newMonth);
+        }
+      }
+      // Recargar transacciones del mes (puede que hayamos cambiado mesGlobal arriba)
       const resTransacciones = await authService.apiCall(`/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
-      const data = await resTransacciones.json();
+      let data = await resTransacciones.json();
+      // Ordenar descendente por fecha luego id
+      data = [...data].sort((a,b) => new Date(b.fecha) - new Date(a.fecha) || b.id - a.id);
       setTransacciones(data);
+      setTotalTransacciones(data.length);
+      // Colocar en primera página tras crear
+      setPaginaActual(1);
+      
+      // Si la nueva transacción hace que sea necesario ir a la última página
+      const totalPaginas = Math.ceil(data.length / transaccionesPorPagina);
+      if (paginaActual > totalPaginas && totalPaginas > 0) {
+        setPaginaActual(totalPaginas);
+      }
+      
       toast.success("Transacción guardada correctamente");
       setMostrarFormulario(false);
       setNuevaTransaccion({ tipo: "gasto", cantidad: 0, descripcion: "", fecha: "" });
@@ -97,10 +129,19 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
       await authService.apiCall(`/transacciones/${id}`, {
         method: "DELETE",
       });
-      // Recargar transacciones del mes seleccionado
-      const res = await authService.apiCall(`/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
-      const data = await res.json();
-      setTransacciones(data);
+        // Recargar transacciones del mes seleccionado
+        const res = await authService.apiCall(`/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
+  let data = await res.json();
+  data = [...data].sort((a,b) => new Date(b.fecha) - new Date(a.fecha) || b.id - a.id);
+  setTransacciones(data);
+  setTotalTransacciones(data.length);
+      
+      // Si después de eliminar nos quedamos sin transacciones en la página actual, volver a la anterior
+      const totalPaginas = Math.ceil(data.length / transaccionesPorPagina);
+      if (paginaActual > totalPaginas && totalPaginas > 0) {
+        setPaginaActual(totalPaginas);
+      }
+      
       toast.success("Transacción eliminada correctamente");
     } catch (err) {
       toast.error("Error al eliminar la transacción");
@@ -114,7 +155,11 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
       tipo: transaccion.tipo,
       cantidad: transaccion.cantidad,
       descripcion: transaccion.descripcion || "",
-      fecha: new Date(transaccion.fecha).toISOString().slice(0, 10) // ← Formato YYYY-MM-DD para input date
+      // Evitar usar toISOString (convierte a UTC y puede retroceder un día cambiando el mes)
+      // Si backend ya envía 'YYYY-MM-DD' o 'YYYY-MM-DDTHH:MM:SS', extraemos la parte de fecha.
+      fecha: (typeof transaccion.fecha === 'string'
+        ? transaccion.fecha.split('T')[0]
+        : new Date(transaccion.fecha).toLocaleDateString('en-CA')) // en-CA => YYYY-MM-DD
     });
   };
 
@@ -151,23 +196,70 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
       );
       if (!res.ok) throw new Error("Error al actualizar transacción");
       
-      // Recargar transacciones del mes seleccionado
-      const resTransacciones = await authService.apiCall(`/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
-      const data = await resTransacciones.json();
-      setTransacciones(data);
-  toast.success('Transacción actualizada correctamente');
-  setEditando(null);
-  setNuevaTransaccion({ tipo: "gasto", cantidad: 0, descripcion: "", fecha: "" });
+    // Recargar transacciones del mes seleccionado
+    const resTransacciones = await authService.apiCall(`/transacciones?mes=${mesGlobal}&anio=${añoGlobal}`);
+  let data = await resTransacciones.json();
+  data = [...data].sort((a,b) => new Date(b.fecha) - new Date(a.fecha) || b.id - a.id);
+  setTransacciones(data);
+  setTotalTransacciones(data.length);
+      
+      toast.success('Transacción actualizada correctamente');
+      setEditando(null);
+      setNuevaTransaccion({ tipo: "gasto", cantidad: 0, descripcion: "", fecha: "" });
     } catch (err) {
       toast.error("Error al actualizar la transacción");
     }
+  };
+
+  // Funciones de paginación
+  const indiceUltimaTransaccion = paginaActual * transaccionesPorPagina;
+  const indicePrimeraTransaccion = indiceUltimaTransaccion - transaccionesPorPagina;
+  const transaccionesActuales = transacciones.slice(indicePrimeraTransaccion, indiceUltimaTransaccion);
+  const totalPaginas = Math.ceil(totalTransacciones / transaccionesPorPagina);
+
+  const cambiarPagina = (numeroPagina) => {
+    setPaginaActual(numeroPagina);
+  };
+
+  const paginaAnterior = () => {
+    if (paginaActual > 1) {
+      setPaginaActual(paginaActual - 1);
+    }
+  };
+
+  const paginaSiguiente = () => {
+    if (paginaActual < totalPaginas) {
+      setPaginaActual(paginaActual + 1);
+    }
+  };
+
+  // Generar números de página para mostrar
+  const generarNumerosPagina = () => {
+    const numeros = [];
+    const rango = 2; // Mostrar 2 páginas a cada lado de la actual
+    
+    let inicio = Math.max(1, paginaActual - rango);
+    let fin = Math.min(totalPaginas, paginaActual + rango);
+    
+    // Ajustar si estamos cerca del inicio o fin
+    if (paginaActual <= rango) {
+      fin = Math.min(totalPaginas, 2 * rango + 1);
+    }
+    if (paginaActual >= totalPaginas - rango) {
+      inicio = Math.max(1, totalPaginas - 2 * rango);
+    }
+    
+    for (let i = inicio; i <= fin; i++) {
+      numeros.push(i);
+    }
+    return numeros;
   };
 
   if (loading) return <p>Cargando transacciones...</p>;
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-4 mb-5">
       <div className="card mb-4">
         <div className="card-header bg-primary text-white d-flex justify-content-between align-items-center">
           <h3 className="mb-0">💰 Transacciones de {nombresMeses[mesGlobal - 1]} {añoGlobal}</h3>
@@ -221,7 +313,9 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
       {/* Lista de transacciones */}
       <div className="card">
         <div className="card-header d-flex justify-content-between align-items-center">
-          <h5 className="mb-0">Lista de Transacciones ({transacciones.length})</h5>
+          <h5 className="mb-0">
+            Lista de Transacciones ({totalTransacciones > 0 ? `${(paginaActual - 1) * transaccionesPorPagina + 1}-${Math.min(paginaActual * transaccionesPorPagina, totalTransacciones)} de ${totalTransacciones}` : '0'})
+          </h5>
           {!mostrarFormulario && !editando && ( // ← Añadido !editando para evitar conflictos
             <button 
               className="btn btn-success"
@@ -232,12 +326,12 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
           )}
         </div>
         <div className="card-body p-0">
-          {transacciones.length === 0 && !mostrarFormulario ? ( // ← Añadido !mostrarFormulario
+          {totalTransacciones === 0 && !mostrarFormulario ? ( // ← Cambiado a totalTransacciones
             <div className="text-center p-5">
               <div className="mb-3">
                 <i className="fas fa-receipt fa-3x text-muted"></i>
               </div>
-              <h5 className="text-muted">No hay transacciones este mes</h5>
+                <h5 className="text-muted">No hay transacciones este mes</h5>
               <p className="text-muted">¡Añade tu primera transacción para empezar!</p>
               <button 
                 className="btn btn-primary"
@@ -315,7 +409,7 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
               )}
 
               {/* Editar transacciones existentes */}
-              {transacciones.map((t) => (
+              {transaccionesActuales.map((t) => (
                 <div key={t.id} className="list-group-item">
                   {editando === t.id ? (
                     // Modo edición
@@ -386,13 +480,12 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
                       </div>
                       <div className="col-md-4">
                         <div>
-                          <strong>{t.descripcion || 'Sin descripción'}</strong>
-                          <div className="text-muted small">
+                          <strong className="transaction-description">{t.descripcion || 'Sin descripción'}</strong>
+                          <div className="transaction-date text-muted small">
                             {new Date(t.fecha).toLocaleDateString('es-ES', {
                               day: 'numeric',
                               month: 'short',
-                              hour: '2-digit',
-                              minute: '2-digit'
+                              year: 'numeric'
                             })}
                           </div>
                         </div>
@@ -405,14 +498,14 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
                       <div className="col-md-3">
                         <div className="d-flex gap-2">
                           <button 
-                            className="btn btn-outline-primary btn-sm"
+                            className="btn btn-outline-primary btn-sm transaction-btn"
                             onClick={() => editarTransaccion(t)}
                             disabled={mostrarFormulario} // ← Evitar conflictos
                           >
                             ✏️ Editar
                           </button>
                           <button 
-                            className="btn btn-outline-danger btn-sm"
+                            className="btn btn-outline-danger btn-sm transaction-btn"
                             onClick={() => {
                               if (window.confirm('¿Seguro que deseas eliminar esta transacción?')) {
                                 eliminarTransaccion(t.id);
@@ -428,6 +521,49 @@ const Transacciones = ({ mesGlobal, añoGlobal, setMesGlobal }) => {
                   )}
                 </div>
               ))}
+            </div>
+          )}
+          
+          {/* Controles de paginación */}
+          {totalTransacciones > transaccionesPorPagina && (
+            <div className="p-3 border-top">
+              <nav aria-label="Paginación de transacciones">
+                <ul className="pagination justify-content-center mb-0">
+                  {/* Botón anterior */}
+                  <li className={`page-item ${paginaActual === 1 ? 'disabled' : ''}`}>
+                    <button 
+                      className="page-link" 
+                      onClick={paginaAnterior}
+                      disabled={paginaActual === 1}
+                    >
+                      Anterior
+                    </button>
+                  </li>
+                  
+                  {/* Números de página */}
+                  {generarNumerosPagina().map(numero => (
+                    <li key={numero} className={`page-item ${paginaActual === numero ? 'active' : ''}`}>
+                      <button 
+                        className="page-link" 
+                        onClick={() => cambiarPagina(numero)}
+                      >
+                        {numero}
+                      </button>
+                    </li>
+                  ))}
+                  
+                  {/* Botón siguiente */}
+                  <li className={`page-item ${paginaActual === Math.ceil(totalTransacciones / transaccionesPorPagina) ? 'disabled' : ''}`}>
+                    <button 
+                      className="page-link" 
+                      onClick={paginaSiguiente}
+                      disabled={paginaActual === Math.ceil(totalTransacciones / transaccionesPorPagina)}
+                    >
+                      Siguiente
+                    </button>
+                  </li>
+                </ul>
+              </nav>
             </div>
           )}
         </div>

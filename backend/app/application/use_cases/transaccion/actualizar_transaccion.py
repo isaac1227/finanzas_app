@@ -4,12 +4,17 @@ Caso de uso: Actualizar transacción
 
 from app.infrastructure.database.models import TransaccionORM
 from app.infrastructure.config.database import SessionLocal
+from datetime import datetime
 
 class ActualizarTransaccionUseCase:
 	def __init__(self, db_session=None):
 		self.db = db_session or SessionLocal()
 
-	def execute(self, user_id: int, transaccion_id: int, tipo: str | None = None, cantidad: float | None = None, descripcion: str | None = None):
+	def execute(self, user_id: int, transaccion_id: int,
+	           tipo: str | None = None,
+	           cantidad: float | None = None,
+	           descripcion: str | None = None,
+	           fecha: datetime | None = None):
 		transaccion = self.db.query(TransaccionORM).filter(TransaccionORM.id == transaccion_id, TransaccionORM.user_id == user_id).first()
 		if not transaccion:
 			raise ValueError("Transacción no encontrada")
@@ -21,6 +26,9 @@ class ActualizarTransaccionUseCase:
 		# descripcion puede ser nullable; si viene explícitamente, la aplicamos
 		if descripcion is not None:
 			transaccion.descripcion = descripcion
+		# fecha si se proporciona
+		if fecha is not None:
+			transaccion.fecha = fecha
 		self.db.commit()
 		self.db.refresh(transaccion)
 		return transaccion
