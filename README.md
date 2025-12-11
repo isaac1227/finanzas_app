@@ -544,11 +544,11 @@ python3 -m pytest --tb=short                 # Output compacto
 - [x] **📊 Gráficos interactivos**: Chart.js con métricas financieras ✅
 - [x] **🧪 Testing**: Tests unitarios con pytest y React Testing Library ✅  
 - [x] **🐳 Docker**: Containerización completa del stack ✅
+- [x] **⚙️ CI/CD**: GitHub Actions con tests automáticos ✅
 - [x] **🎨 UX/UI moderna**: Bootstrap, toasts, diseño responsivo ✅
 - [x] **📚 Documentación**: README completo con diagramas y guías ✅
 
 ### **🚧 En Progreso / Próximas**
-- [ ] **⚙️ CI/CD**: GitHub Actions para deployment automático
 - [ ] **📱 Mobile**: Progressive Web App (PWA) 
 - [ ] **🔄 Real-time**: WebSockets para actualizaciones en vivo
 - [ ] **📈 Analytics**: Dashboard con métricas avanzadas
@@ -622,3 +622,19 @@ docker-compose down -v
 - **Aislamiento**: Cada servicio se ejecuta en su propio contenedor, evitando conflictos.
 - **Facilidad de Uso**: Comandos simples para iniciar, detener y reconstruir servicios.
 - **Optimización para Desarrollo**: Auto-reload habilitado para backend y frontend.
+
+## ⚙️ CI/CD - Integración Continua
+
+El proyecto cuenta con **GitHub Actions** que se ejecuta automáticamente en cada `push` o `pull request`:
+
+### **¿Qué hace el CI/CD?**
+1. **Tests Backend** - Ejecuta pytest sobre FastAPI (36 tests)
+2. **Tests Frontend** - Ejecuta npm test sobre React (32 tests)
+3. **Tests de Integración** - Levanta Docker Compose completo y verifica endpoints
+4. **Validación** - Si algo falla ❌ rechaza el merge; si todo pasa ✅ permite mergear
+
+### **Ver estado CI/CD**
+```bash
+# Ir a GitHub → Actions para ver el historial de ejecuciones
+https://github.com/isaac1227/finanzas_app/actions/workflows/ci.yml
+```
